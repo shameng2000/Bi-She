@@ -631,11 +631,7 @@
 
 <script>
 const { createApp, ref, reactive, computed, watch, onMounted, nextTick } = Vue;
-const API_BASE = (() => {
-    const host = window.location.hostname;
-    if (!host) return 'http://localhost:3000';
-    return `${window.location.protocol}//${host}:3000`;
-})();
+const API_BASE = 'https://bi-she.onrender.com';
 
 createApp({
     setup() {
