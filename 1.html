@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO-GEN Pro | 工程级参数化设计平台</title>
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --highlight: #f59e0b; /* Amber for highlights */
+            --bg-dark: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+        }
+
+        body { 
+            margin: 0; overflow: hidden; background-color: var(--bg-dark); 
+            color: var(--text-main); font-family: 'Inter', sans-serif; 
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* UI Components */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-title {
+            letter-spacing: 0.04em;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .section-badge {
+            font-size: 11px;
+            color: #7dd3fc;
+            background: rgba(14, 116, 144, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .control-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .control-btn {
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .control-icon {
+            font-size: 16px;
+        }
+
+        .text-xs {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .text-sm {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .ai-glow {
+            box-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            outline: none;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            border: 2px solid white;
+        }
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--accent);
+        }
+
+        /* Tooltip Animation */
+        .tooltip-enter-active, .tooltip-leave-active { transition: all 0.2s ease; }
+        .tooltip-enter-from, .tooltip-leave-to { opacity: 0; transform: translateX(-10px); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 2px; }
+        
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak class="h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="h-14 glass-panel z-50 flex items-center justify-between px-6 shrink-0 border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg">A</div>
+            <span class="font-bold text-lg tracking-wide text-white">AUTO-GEN <span class="text-xs font-normal text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded ml-1">Pro</span></span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="flex items-center gap-4 text-xs text-slate-300">
+                <a href="index.html" class="hover:text-cyan-300 transition">首页</a>
+                <a href="docs.html" class="hover:text-cyan-300 transition">学习文档</a>
+                <a href="me.html" class="hover:text-cyan-300 transition">我的</a>
+                <a href="1.html" class="text-cyan-300">工作台</a>
+            </nav>
+            <button @click="exportModel"
+                    class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white backdrop-blur border border-blue-500/60 text-xs flex items-center gap-2 transition shadow-lg shadow-blue-900/40">
+                <span class="material-icons-round text-sm">download</span> 导出模型
+            </button>
+            <button @click="exportDrawing"
+                    class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white backdrop-blur border border-emerald-500/60 text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-900/40">
+                <span class="material-icons-round text-sm">image</span> 导出工图
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative">
+
+        <!-- Intro Modal -->
+        <div v-if="showIntro" class="absolute inset-0 z-[60] flex items-center justify-center bg-slate-950/70 backdrop-blur">
+            <div class="w-[720px] max-w-[92vw] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">欢迎来到车辆参数化设计</h2>
+                        <p class="text-xs text-slate-400 mt-1">告诉我你想设计什么样的小车，我们会自动生成一套合理参数并预填。</p>
+                    </div>
+                    <button @click="closeIntro" class="text-slate-400 hover:text-slate-200 text-xs">跳过</button>
+                </div>
+
+                <div class="mt-4 grid grid-cols-3 gap-3 text-[11px] text-slate-300">
+                    <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700">
+                        <div class="text-cyan-300 font-bold mb-1">1 输入需求</div>
+                        <div>描述用途、场景、速度、载重等。</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700">
+                        <div class="text-cyan-300 font-bold mb-1">2 智能预设</div>
+                        <div>AI 生成参数并自动填充。</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700">
+                        <div class="text-cyan-300 font-bold mb-1">3 继续微调</div>
+                        <div>你可以在左侧面板进一步调整。</div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-xs text-slate-400">你的设计需求</label>
+                    <textarea v-model="introInput" rows="4"
+                              class="mt-2 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 focus:border-cyan-400 outline-none"
+                              placeholder="例：我想要一辆适合校园搬运的小车，续航优先、载重中等、稳定性好。"></textarea>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-xs text-slate-400">
+                        {{ introStatus }}
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="closeIntro" class="px-3 py-1.5 rounded bg-slate-800 text-slate-300 text-xs border border-slate-700 hover:bg-slate-700">稍后再说</button>
+                        <button @click="generateIntroParams" :disabled="introLoading || !introInput.trim()"
+                                class="px-3 py-1.5 rounded bg-cyan-600 text-white text-xs border border-cyan-500 hover:bg-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed">
+                            {{ introLoading ? '生成中...' : '生成并预填' }}
+                        </button>
+                    </div>
+                </div>
+                <div v-if="introError" class="mt-3 text-xs text-rose-300 bg-rose-900/40 border border-rose-700/40 rounded px-3 py-2">
+                    生成失败：{{ introError }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Modal -->
+        <div v-if="showAudit" class="absolute inset-0 z-[60] flex items-center justify-center bg-slate-950/70 backdrop-blur">
+            <div class="w-[640px] max-w-[94vw] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 leading-relaxed">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center ai-glow">
+                                <span class="material-icons-round text-base">fact_check</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">AI 参数核验</h2>
+                                <p class="text-xs text-slate-400 mt-1">检查当前参数是否存在明显不合理之处。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="showAudit = false" class="text-slate-400 hover:text-slate-200 text-xs">关闭</button>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="px-2 py-0.5 rounded-full"
+                              :class="auditResult && auditResult.ok ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'">
+                            {{ auditResult ? (auditResult.ok ? '整体合理' : '存在风险') : '等待核验' }}
+                        </span>
+                        <span class="text-slate-400" v-if="auditResult">问题数：{{ auditResult.issues.length }}</span>
+                    </div>
+                    <div v-if="auditLoading" class="mt-3 text-slate-400 text-xs">正在核验，请稍候...</div>
+                    <div v-else-if="auditResult" class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="rounded-lg border border-rose-700/40 bg-rose-900/10 p-4">
+                            <div class="text-xs text-rose-300 font-semibold mb-2 flex items-center gap-1">
+                                <span class="material-icons-round text-sm">error_outline</span> 不合理点
+                            </div>
+                            <ul class="text-xs text-slate-200 space-y-2">
+                                <li v-for="(item, idx) in auditResult.issues" :key="idx" class="flex gap-2">
+                                    <span class="text-rose-300">•</span>
+                                    <span>{{ item }}</span>
+                                </li>
+                                <li v-if="!auditResult.issues.length" class="text-slate-400">未发现明显不合理设置。</li>
+                            </ul>
+                        </div>
+                        <div class="rounded-lg border border-emerald-700/40 bg-emerald-900/10 p-4">
+                            <div class="text-xs text-emerald-300 font-semibold mb-2 flex items-center gap-1">
+                                <span class="material-icons-round text-sm">lightbulb</span> 建议
+                            </div>
+                            <ul class="text-xs text-slate-200 space-y-2">
+                                <li v-for="(item, idx) in auditResult.suggestions" :key="idx" class="flex gap-2">
+                                    <span class="text-emerald-300">•</span>
+                                    <span>{{ item }}</span>
+                                </li>
+                                <li v-if="!auditResult.suggestions.length" class="text-slate-400">暂无额外建议。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div v-else class="text-xs text-slate-500 mt-3">暂无核验结果。</div>
+                </div>
+                <div v-if="auditError" class="mt-3 text-xs text-rose-300 bg-rose-900/40 border border-rose-700/40 rounded px-3 py-2">
+                    核验失败：{{ auditError }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- LEFT: Design Guide & Parameters -->
+        <div class="w-[380px] flex flex-col glass-panel border-r border-white/5 z-20 h-full">
+            
+            <!-- Step Indicator -->
+            <div class="p-4 border-b border-white/5 bg-slate-800/50">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-icons-round text-lg text-cyan-300">menu_book</span>
+                    <div class="section-title panel-title">设计流程指引</div>
+                    <span class="section-badge">指南</span>
+                </div>
+                <div class="flex justify-between items-center relative">
+                    <div class="absolute top-1/2 left-0 w-full h-0.5 bg-slate-700 -z-10"></div>
+                    <div v-for="(step, idx) in steps" :key="idx" 
+                         class="flex flex-col items-center gap-1 cursor-pointer"
+                         @click="activeGroup = step.key">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all duration-300"
+                             :class="activeGroup === step.key ? 'bg-blue-600 border-blue-600 text-white scale-110' : 'bg-slate-800 border-slate-600 text-slate-400'">
+                            {{ idx + 1 }}
+                        </div>
+                        <span class="text-[10px]" :class="activeGroup === step.key ? 'text-blue-400' : 'text-slate-500'">{{ step.label }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters Scroll Area -->
+            <div class="flex-1 overflow-y-auto overflow-x-visible p-2 space-y-2 custom-scrollbar">
+                
+                <div v-for="(group, key) in parameterGroups" :key="key" 
+                     v-show="activeGroup === key"
+                     class="animate-fade-in">
+                    
+                    <div class="px-4 py-3 mb-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <h3 class="text-sm font-bold text-blue-300 flex items-center gap-2">
+                            <span class="material-icons-round text-base">{{ group.icon }}</span>
+                            {{ group.label }}
+                        </h3>
+                        <p class="text-[10px] text-blue-200/60 mt-1 leading-relaxed">{{ group.desc }}</p>
+                    </div>
+
+                    <div class="space-y-6 px-4 py-2">
+                        <div v-for="param in group.params" :key="param.key" class="relative group">
+                            <!-- Label Row -->
+                            <div class="flex justify-between items-center mb-2"
+                                 @mouseenter="highlightPart(param.targetPart, param)"
+                                 @mouseleave="clearHighlight">
+                                <label class="text-xs text-slate-300 font-medium flex items-center gap-1 cursor-help">
+                                    {{ param.label }}
+                                    <span class="material-icons-round text-[10px] text-slate-500">help_outline</span>
+                                </label>
+                                <span class="text-xs font-mono text-cyan-400 bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-900/50">
+                                    {{ formatParamValue(param) }}
+                                </span>
+                            </div>
+                            
+                            <!-- Controls -->
+                            <input v-if="param.type === 'range'" type="range"
+                                   v-model.number="params[param.key]"
+                                   :min="param.min" :max="param.max" :step="param.step"
+                                   @input="onParamChange"
+                                   class="custom-slider">
+
+                            <select v-else-if="param.type === 'select'"
+                                    v-model="params[param.key]"
+                                    @change="onParamChange"
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+                                <option v-for="opt in param.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                            </select>
+
+                            <div v-else-if="param.type === 'buttons'" class="flex gap-2 flex-wrap">
+                                <button v-for="opt in param.options" :key="opt.value"
+                                        @click="params[param.key] = opt.value; onParamChange();"
+                                        class="px-3 py-1.5 rounded text-xs border transition"
+                                        :class="params[param.key] === opt.value ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-600 text-slate-300'">
+                                    {{ opt.label }}
+                                </button>
+                            </div>
+
+                            <div v-else-if="param.type === 'multi'" class="flex flex-wrap gap-3">
+                                <label v-for="opt in param.options" :key="opt.value" class="flex items-center gap-2 text-xs text-slate-300">
+                                    <input type="checkbox"
+                                           :checked="(params[param.key] || []).includes(opt.value)"
+                                           @change="toggleMultiParam(param.key, opt.value)"
+                                           class="accent-blue-500">
+                                    {{ opt.label }}
+                                </label>
+                            </div>
+
+                            <div v-if="recommendations[param.key] !== undefined" class="mt-2 text-[10px] text-emerald-300/80">
+                                推荐值: <span class="text-emerald-200 font-mono">{{ formatRecommended(param) }}</span>
+                            </div>
+
+                            <!-- Educational Tooltip (On Hover) -->
+                            <transition name="tooltip">
+                                <div v-if="activeHoverParam === param.key" 
+                                     class="absolute left-0 top-full mt-2 w-64 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl p-3 z-[80] pointer-events-none">
+                                    <div class="flex items-center gap-2 mb-2 border-b border-slate-700 pb-2">
+                                        <span class="material-icons-round text-amber-400 text-sm">lightbulb</span>
+                                        <span class="text-xs font-bold text-white">工程知识点</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed mb-2">{{ param.eduText || '该参数用于调整车辆设计的关键特性。' }}</p>
+                                    <div class="flex gap-2">
+                                        <div class="px-2 py-1 rounded bg-slate-700 text-[10px] text-slate-400">
+                                            影响部件: <span class="text-amber-400">{{ param.targetPartLabel || '整车' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+
+                        <div v-if="group.advancedParams && group.advancedParams.length" class="mt-4 pt-3 border-t border-white/10">
+                            <button @click="advancedOpen[key] = !advancedOpen[key]" class="flex items-center justify-between w-full text-left text-xs font-bold text-slate-300">
+                                <span>高级设置</span>
+                                <span class="text-[10px] text-cyan-400">{{ advancedOpen[key] ? '收起' : '展开' }}</span>
+                            </button>
+                            <div v-show="advancedOpen[key]" class="mt-4 space-y-6">
+                                <div v-for="param in group.advancedParams" :key="param.key" class="relative group">
+                                    <div class="flex justify-between items-center mb-2"
+                                         @mouseenter="highlightPart(param.targetPart, param)"
+                                         @mouseleave="clearHighlight">
+                                        <label class="text-xs text-slate-300 font-medium flex items-center gap-1 cursor-help">
+                                            {{ param.label }}
+                                            <span class="material-icons-round text-[10px] text-slate-500">help_outline</span>
+                                        </label>
+                                        <span class="text-xs font-mono text-cyan-400 bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-900/50">
+                                            {{ formatParamValue(param) }}
+                                        </span>
+                                    </div>
+
+                                    <input v-if="param.type === 'range'" type="range"
+                                           v-model.number="params[param.key]"
+                                           :min="param.min" :max="param.max" :step="param.step"
+                                           @input="onParamChange"
+                                           class="custom-slider">
+
+                                    <select v-else-if="param.type === 'select'"
+                                            v-model="params[param.key]"
+                                            @change="onParamChange"
+                                            class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+                                        <option v-for="opt in param.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                                    </select>
+
+                                    <div v-else-if="param.type === 'buttons'" class="flex gap-2 flex-wrap">
+                                        <button v-for="opt in param.options" :key="opt.value"
+                                                @click="params[param.key] = opt.value; onParamChange();"
+                                                class="px-3 py-1.5 rounded text-xs border transition"
+                                                :class="params[param.key] === opt.value ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-600 text-slate-300'">
+                                            {{ opt.label }}
+                                        </button>
+                                    </div>
+
+                                    <div v-else-if="param.type === 'multi'" class="flex flex-wrap gap-3">
+                                        <label v-for="opt in param.options" :key="opt.value" class="flex items-center gap-2 text-xs text-slate-300">
+                                            <input type="checkbox"
+                                                   :checked="(params[param.key] || []).includes(opt.value)"
+                                                   @change="toggleMultiParam(param.key, opt.value)"
+                                                   class="accent-blue-500">
+                                            {{ opt.label }}
+                                        </label>
+                                    </div>
+
+                                    <div v-if="recommendations[param.key] !== undefined" class="mt-2 text-[10px] text-emerald-300/80">
+                                        推荐值: <span class="text-emerald-200 font-mono">{{ formatRecommended(param) }}</span>
+                                    </div>
+
+                                    <transition name="tooltip">
+                                        <div v-if="activeHoverParam === param.key" 
+                                             class="absolute left-0 top-full mt-2 w-64 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl p-3 z-[80] pointer-events-none">
+                                            <div class="flex items-center gap-2 mb-2 border-b border-slate-700 pb-2">
+                                                <span class="material-icons-round text-amber-400 text-sm">lightbulb</span>
+                                                <span class="text-xs font-bold text-white">工程知识点</span>
+                                            </div>
+                                            <p class="text-xs text-slate-300 leading-relaxed mb-2">{{ param.eduText || '该参数用于调整车辆设计的关键特性。' }}</p>
+                                            <div class="flex gap-2">
+                                                <div class="px-2 py-1 rounded bg-slate-700 text-[10px] text-slate-400">
+                                                    影响部件: <span class="text-amber-400">{{ param.targetPartLabel || '整车' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+
+        <!-- CENTER: 3D Viewport -->
+        <div class="flex-1 relative bg-gradient-to-b from-gray-900 to-black overflow-hidden">
+            <div id="canvas-container" class="w-full h-full cursor-move outline-none"></div>
+            
+            <!-- Controls Guide Overlay -->
+            <div class="absolute bottom-6 left-6 pointer-events-none bg-slate-900/80 backdrop-blur border border-white/10 p-3 rounded-lg text-xs text-slate-400 shadow-xl">
+                <div class="font-bold text-slate-200 mb-2 border-b border-white/10 pb-1">视图操作指引</div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                    <div class="flex items-center gap-2"><span class="material-icons-round text-base">mouse</span> 左键旋转</div>
+                    <div class="flex items-center gap-2"><span class="material-icons-round text-base">pan_tool</span> 右键平移</div>
+                    <div class="flex items-center gap-2"><span class="material-icons-round text-base">zoom_in</span> 滚轮缩放</div>
+                </div>
+            </div>
+
+            <!-- View & Analysis Controls -->
+            <div class="absolute top-4 left-6 z-30">
+                <div class="control-bar">
+                    <div class="relative">
+                        <button @click="toggleViewMenu"
+                            class="control-btn bg-slate-800/80 hover:bg-slate-700 text-white border border-white/10 transition">
+                            <span class="material-icons-round control-icon">photo_size_select_large</span> 三视图
+                            <span class="material-icons-round text-sm">expand_more</span>
+                        </button>
+                        <div v-if="showViewMenu" class="absolute left-0 mt-2">
+                            <div class="min-w-[160px] rounded-lg border border-white/10 bg-slate-900/95 shadow-lg p-2 text-xs text-slate-200 space-y-1">
+                                <button @click="setCameraView('front')" class="w-full text-left px-2 py-1 rounded hover:bg-slate-700/60">正视图</button>
+                                <button @click="setCameraView('side')" class="w-full text-left px-2 py-1 rounded hover:bg-slate-700/60">侧视图</button>
+                                <button @click="setCameraView('top')" class="w-full text-left px-2 py-1 rounded hover:bg-slate-700/60">俯视图</button>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-2 text-xs text-slate-200 select-none cursor-pointer">
+                        <span class="material-icons-round control-icon">insights</span>
+                        <span class="font-medium">受力分析</span>
+                        <span class="relative inline-flex h-5 w-10 items-center rounded-full transition"
+                              :class="stressEnabled ? 'bg-rose-500/80' : 'bg-slate-600/80'">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition"
+                                  :class="stressEnabled ? 'translate-x-5' : 'translate-x-1'"></span>
+                        </span>
+                        <input type="checkbox" class="hidden" v-model="stressEnabled" @change="toggleStressAnalysis">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+        <div class="absolute top-4 right-6 flex gap-2 z-30">
+                <button @click="undo" :disabled="history.length <= 1"
+                        class="w-9 h-9 rounded bg-slate-800/80 hover:bg-slate-700 text-white backdrop-blur border border-white/10 flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">
+                    <span class="material-icons-round text-base">undo</span>
+                </button>
+                <button @click="redo" :disabled="redoStack.length === 0"
+                        class="w-9 h-9 rounded bg-slate-800/80 hover:bg-slate-700 text-white backdrop-blur border border-white/10 flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">
+                    <span class="material-icons-round text-base">redo</span>
+                </button>
+                <button @click="resetParams"
+                        class="px-3 py-1.5 rounded bg-slate-800/80 hover:bg-slate-700 text-white backdrop-blur border border-white/10 text-xs flex items-center gap-2 transition">
+                    <span class="material-icons-round text-sm">restart_alt</span> 参数还原
+                </button>
+                <button @click="auditParams" :disabled="auditLoading"
+                        class="px-3 py-1.5 rounded bg-slate-800/80 hover:bg-slate-700 text-white backdrop-blur border border-white/10 text-xs flex items-center gap-2 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                    <span class="material-icons-round text-sm">fact_check</span> {{ auditLoading ? '核验中' : 'AI核验' }}
+                </button>
+                <button @click="saveConfig"
+                        class="px-3 py-1.5 rounded bg-slate-800/80 hover:bg-slate-700 text-white backdrop-blur border border-white/10 text-xs flex items-center gap-2 transition">
+                    <span class="material-icons-round text-sm">save</span> 保存
+                </button>
+            </div>
+            <div v-if="auditError" class="absolute top-14 right-6 text-[11px] text-rose-300 bg-rose-900/40 border border-rose-700/40 rounded px-3 py-1">
+                AI核验失败: {{ auditError }}
+            </div>
+
+            <div v-if="stressEnabled" class="absolute top-16 left-6 w-[280px] rounded-xl border border-rose-400/20 bg-slate-900/80 backdrop-blur p-3 text-xs text-slate-200 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2 text-rose-300">
+                        <span class="material-icons-round text-sm">insights</span>
+                        <span class="font-semibold">受力分析</span>
+                    </div>
+                    <button @click="toggleStressAnalysis" class="text-slate-400 hover:text-slate-200">关闭</button>
+                </div>
+                <div class="space-y-1 text-[11px] text-slate-300">
+                    <div class="flex justify-between"><span>前轴载荷</span><span class="text-emerald-300">{{ stressStats.front }}%</span></div>
+                    <div class="flex justify-between"><span>后轴载荷</span><span class="text-emerald-300">{{ stressStats.rear }}%</span></div>
+                    <div class="flex justify-between"><span>左/右偏差</span><span class="text-amber-300">{{ stressStats.lrBias }}%</span></div>
+                    <div class="flex justify-between"><span>左前轮</span><span>{{ stressStats.lf }}%</span></div>
+                    <div class="flex justify-between"><span>右前轮</span><span>{{ stressStats.rf }}%</span></div>
+                    <div class="flex justify-between"><span>左后轮</span><span>{{ stressStats.lr }}%</span></div>
+                    <div class="flex justify-between"><span>右后轮</span><span>{{ stressStats.rr }}%</span></div>
+                    <div class="flex justify-between"><span>底盘载荷</span><span>{{ stressStats.chassisLoad }}%</span></div>
+                    <div class="flex justify-between"><span>最大受力部位</span><span class="text-rose-300">{{ stressStats.maxPart }}</span></div>
+                    <div class="mt-2 px-2 py-1 rounded bg-rose-900/20 border border-rose-700/30 text-rose-200">
+                        稳定性警告：{{ stressStats.warning }}
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="stressHover" class="absolute pointer-events-none px-2 py-1 text-[11px] text-white bg-slate-900/90 border border-cyan-400/30 rounded shadow-lg"
+                 :style="{ left: stressHover.x + 'px', top: stressHover.y + 'px' }">
+                {{ stressHover.label }}：{{ stressHover.value }}%
+            </div>
+        </div>
+
+        <!-- RIGHT: AI & Feedback -->
+        <div class="w-[300px] flex flex-col gap-3 glass-panel border-l border-white/5 z-20 p-3">
+            <!-- Performance Panel -->
+            <div class="rounded-xl border border-white/5 bg-slate-900/40 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-icons-round text-lg text-emerald-300">analytics</span>
+                        <h3 class="section-title panel-title">实时性能模拟</h3>
+                    </div>
+                    <span class="section-badge">性能面板</span>
+                </div>
+                <div class="space-y-3">
+                    <div v-for="(val, key) in metrics" :key="key">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 capitalize">{{ translateMetric(key) }}</span>
+                            <span :class="val > 80 ? 'text-green-400' : (val < 50 ? 'text-amber-400' : 'text-blue-400')">{{ val }}</span>
+                        </div>
+                        <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-300" 
+                                 :class="val > 80 ? 'bg-green-500' : 'bg-blue-500'"
+                                 :style="{width: val + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="flex-1 flex flex-col overflow-hidden bg-slate-900/30 rounded-xl border border-cyan-400/20 ai-glow">
+                <div class="p-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-cyan-400/20 text-xs text-center text-cyan-200">
+                    <span class="material-icons-round text-base align-middle mr-1">smart_toy</span>
+                    <span class="section-title align-middle">AI 助手</span>
+                    <span class="ml-2 section-badge">智能建议</span>
+                </div>
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <div class="bg-slate-800 p-3 rounded-xl rounded-tl-none border border-slate-700 text-xs text-slate-300 leading-relaxed">
+                        这里是你的 AI 工程师。试着告诉我：“我想让这辆车能装更多货物” 或 “提高爬坡能力”。
+                    </div>
+                    <div v-for="(msg, i) in chatHistory" :key="i"
+                         class="p-3 rounded-xl text-xs leading-relaxed max-w-[90%] whitespace-pre-wrap"
+                         :class="msg.role === 'user' ? 'bg-blue-600 text-white self-end rounded-br-none' : 'bg-slate-800 text-slate-300 border border-slate-700 self-start rounded-tl-none'">
+                        {{ msg.content }}
+                    </div>
+                </div>
+                <div class="p-3 border-t border-white/5 bg-slate-800/80">
+                    <input v-model="userInput" @keyup.enter="sendMessage" 
+                           placeholder="输入你的设计意图..." 
+                           class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+const { createApp, ref, reactive, computed, watch, onMounted, nextTick } = Vue;
+const API_BASE = (() => {
+    const host = window.location.hostname;
+    if (!host) return 'http://localhost:3000';
+    return `${window.location.protocol}//${host}:3000`;
+})();
+
+createApp({
+    setup() {
+        // --- State Management ---
+        const history = ref([]);
+        const activeHoverParam = ref(null);
+        
+        // --- Steps & Navigation ---
+        const steps = [
+            { key: 'chassis', label: '车身结构' },
+            { key: 'wheels', label: '轮胎与悬挂' },
+            { key: 'power', label: '动力系统' },
+            { key: 'extras', label: '附属载荷' }
+        ];
+        const activeGroup = ref('chassis');
+        const advancedOpen = reactive({ chassis: false, wheels: false, power: false, extras: false });
+
+        // --- Parameters (Detailed) ---
+        const params = reactive({
+            // Chassis (Basic)
+            vehicleLength: 3.6,
+            vehicleWidth: 1.6,
+            wheelbase: 2.1,
+
+            // Wheels & Suspension (Basic)
+            tireOuterDiameter: 0.7,
+            tireWidth: 0.28,
+            rimDiameter: 0.35,
+            suspensionType: 'independent',
+
+            // Power (Basic)
+            motorPower: 120,
+            batteryCapacity: 60,
+            driveType: 'rwd',
+
+            // Extras (Basic)
+            payloadCapacity: 120,
+            baffleWidth: 0.4,
+            baffleThickness: 0.04,
+            auxiliaryModules: [],
+
+            // Chassis (Advanced)
+            chassisHeight: 0.35,
+            bodyThickness: 0.04,
+
+            // Wheels & Suspension (Advanced)
+            suspensionStiffness: 60,
+            wheelOffset: 0,
+            steeringAngle: 0,
+
+            // Power (Advanced)
+            motorRPM: 6000,
+            driveAdjust: 50,
+
+            // Extras (Advanced)
+            weightDistribution: 50,
+            smartSensors: []
+        });
+        const initialParams = JSON.parse(JSON.stringify(params));
+        const redoStack = ref([]);
+        const recommendations = reactive({});
+        const recLoading = ref(false);
+        const recError = ref('');
+        const auditLoading = ref(false);
+        const auditError = ref('');
+        const showAudit = ref(false);
+        const auditResult = ref(null);
+        const viewMode = ref('structure');
+        const stressEnabled = ref(false);
+        const showViewMenu = ref(false);
+        const stressHover = ref(null);
+        const showIntro = ref(true);
+        const introInput = ref('');
+        const introLoading = ref(false);
+        const introError = ref('');
+        const introStatus = ref('请输入你的设计需求，点击生成后自动预填参数。');
+        let suppressHistory = false;
+
+        // Initialize history
+        const pushHistory = () => {
+            if (suppressHistory) return;
+            if (history.value.length > 10) history.value.shift();
+            history.value.push(JSON.parse(JSON.stringify(params)));
+            redoStack.value = [];
+        };
+        const onParamChange = () => {
+            // Debounce history push could be added here
+        };
+        // Watch for end of drag to push history? For simplicity, we push periodically or on major change logic
+        // For this demo, let's just push initial state
+        onMounted(() => pushHistory());
+
+        const undo = () => {
+            if (history.value.length > 1) {
+                redoStack.value.push(history.value.pop()); // Move current to redo
+                const prev = history.value[history.value.length - 1];
+                suppressHistory = true;
+                Object.assign(params, prev);
+                suppressHistory = false;
+            }
+        };
+
+        const redo = () => {
+            if (!redoStack.value.length) return;
+            const next = redoStack.value.pop();
+            suppressHistory = true;
+            Object.assign(params, next);
+            suppressHistory = false;
+            history.value.push(JSON.parse(JSON.stringify(next)));
+        };
+
+        const resetParams = () => {
+            suppressHistory = true;
+            Object.assign(params, JSON.parse(JSON.stringify(initialParams)));
+            suppressHistory = false;
+            history.value = [JSON.parse(JSON.stringify(initialParams))];
+            redoStack.value = [];
+        };
+
+        const exportModel = () => {
+            const data = JSON.stringify(params, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'model-params.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        const saveConfig = () => {
+            localStorage.setItem('autogen_params', JSON.stringify(params));
+        };
+
+        const formatRecommended = (param) => {
+            const val = recommendations[param.key];
+            if (val === undefined || val === null) return '-';
+            if (param.type === 'select') {
+                const match = (param.options || []).find(o => o.value === val);
+                return match ? match.label : val;
+            }
+            if (param.type === 'buttons') {
+                const match = (param.options || []).find(o => o.value === val);
+                return match ? match.label : val;
+            }
+            if (param.type === 'multi') {
+                return Array.isArray(val) ? `${val.length}项` : val;
+            }
+            return `${val}${param.unit || ''}`;
+        };
+
+        const parseRecommendResponse = (text) => {
+            const tryParse = (raw) => {
+                try {
+                    return JSON.parse(raw);
+                } catch (err) {
+                    return null;
+                }
+            };
+            let json = tryParse(text);
+            if (!json) {
+                const match = text.match(/\{[\s\S]*\}/);
+                if (match) json = tryParse(match[0]);
+            }
+            if (json && json.reply && typeof json.reply === 'string') {
+                const inner = json.reply.match(/\{[\s\S]*\}/);
+                if (inner) {
+                    const innerJson = tryParse(inner[0]);
+                    if (innerJson) json = innerJson;
+                }
+            }
+            if (!json || typeof json !== 'object') {
+                return { result: null, reason: '' };
+            }
+            if (json.result && typeof json.result === 'object') {
+                return { result: json.result, reason: json.reason || '' };
+            }
+            return { result: json, reason: json.reason || '' };
+        };
+
+        const parseAuditResponse = (text) => {
+            const tryParse = (raw) => {
+                try {
+                    return JSON.parse(raw);
+                } catch (err) {
+                    return null;
+                }
+            };
+            let json = tryParse(text);
+            if (!json) {
+                const match = text.match(/\{[\s\S]*\}/);
+                if (match) json = tryParse(match[0]);
+            }
+            if (json && json.reply && typeof json.reply === 'string') {
+                const inner = json.reply.match(/\{[\s\S]*\}/);
+                if (inner) {
+                    const innerJson = tryParse(inner[0]);
+                    if (innerJson) json = innerJson;
+                }
+            }
+            return json && typeof json === 'object' ? json : null;
+        };
+
+        const buildAuditSummary = (result) => {
+            const labelMap = buildParamLabelMap();
+            const issues = Array.isArray(result.issues) ? result.issues : [];
+            const suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];
+            const lines = [];
+            if (issues.length) {
+                lines.push('不合理点：');
+                issues.slice(0, 6).forEach((i) => lines.push(`- ${replaceKeysWithLabels(i, labelMap)}`));
+            } else {
+                lines.push('未发现明显不合理设置。');
+            }
+            if (suggestions.length) {
+                lines.push('');
+                lines.push('建议：');
+                suggestions.slice(0, 6).forEach((s) => lines.push(`- ${replaceKeysWithLabels(s, labelMap)}`));
+            }
+            return lines.join('\n');
+        };
+
+        const fetchRecommendations = async () => {
+            recLoading.value = true;
+            recError.value = '';
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 180000);
+                const resp = await fetch(`${API_BASE}/api/recommend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        params: getRecommendContextParams(),
+                        keys: Object.keys(buildParamSpec())
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                const text = await resp.text();
+                if (!resp.ok) throw new Error(text);
+                const parsed = parseRecommendResponse(text);
+                if (!parsed.result || typeof parsed.result !== 'object') throw new Error('未解析到JSON推荐结果');
+                Object.keys(recommendations).forEach(k => delete recommendations[k]);
+                Object.assign(recommendations, parsed.result);
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    const fallback = localRecommend('', params);
+                    Object.keys(recommendations).forEach(k => delete recommendations[k]);
+                    Object.assign(recommendations, fallback.result);
+                    recError.value = 'AI 超时，已使用本地规则生成推荐。';
+                } else {
+                    const fallback = localRecommend('', params);
+                    Object.keys(recommendations).forEach(k => delete recommendations[k]);
+                    Object.assign(recommendations, fallback.result);
+                    recError.value = 'AI 异常，已使用本地规则生成推荐。';
+                }
+            } finally {
+                recLoading.value = false;
+            }
+        };
+
+        const auditFallback = () => {
+            const issues = [];
+            const suggestions = [];
+            if (params.chassisHeight > params.tireOuterDiameter * 0.45) {
+                issues.push('底盘高度偏高，可能超过轮胎高度范围。');
+                suggestions.push('降低底盘高度，保持在轮胎高度以内。');
+            }
+            if (params.tireWidth < 0.2 || params.tireWidth > 0.4) {
+                issues.push('轮胎宽度超出常规范围。');
+                suggestions.push('将轮胎宽度调整到 0.2m - 0.4m。');
+            }
+            if (params.vehicleLength < params.wheelbase + 0.6) {
+                issues.push('车身总长可能不足以容纳当前轴距。');
+                suggestions.push('适当增加车身总长或缩短轴距。');
+            }
+            const ok = issues.length === 0;
+            return {
+                ok,
+                issues,
+                suggestions
+            };
+        };
+
+        const auditParams = async () => {
+            auditLoading.value = true;
+            auditError.value = '';
+            showAudit.value = true;
+            auditResult.value = null;
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 60000);
+                const resp = await fetch(`${API_BASE}/api/audit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        params: { ...params },
+                        labels: buildParamLabelMap()
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                const text = await resp.text();
+                if (!resp.ok) throw new Error(text);
+                const parsed = parseAuditResponse(text);
+                if (!parsed) throw new Error('未解析到AI核验结果');
+                const summary = buildAuditSummary(parsed);
+                const labelMap = buildParamLabelMap();
+                const issues = Array.isArray(parsed.issues) ? parsed.issues.map(i => replaceKeysWithLabels(i, labelMap)) : [];
+                const suggestions = Array.isArray(parsed.suggestions) ? parsed.suggestions.map(s => replaceKeysWithLabels(s, labelMap)) : [];
+                auditResult.value = {
+                    ok: !!parsed.ok,
+                    summary,
+                    issues,
+                    suggestions
+                };
+            } catch (err) {
+                const msg = (err && (err.message || err)) ? String(err.message || err) : '';
+                if (err && err.name === 'AbortError') {
+                    auditError.value = 'AI 响应超时，请稍后重试（已将等待时间延长到 180 秒）。';
+                } else if (/timed out|超时/i.test(msg)) {
+                    auditError.value = 'AI 响应超时，请稍后重试（已将等待时间延长到 180 秒）。';
+                } else if (/Failed to fetch|NetworkError/i.test(msg)) {
+                    auditError.value = `无法连接 AI 服务（${API_BASE}），请确认 node server.js 正在运行。`;
+                } else {
+                    auditError.value = 'AI 服务未连接，请确认 node server.js 正在运行。';
+                }
+                auditResult.value = null;
+            } finally {
+                auditLoading.value = false;
+            }
+        };
+
+        const exportDrawing = async () => {
+            if (!modelRoot) return;
+            const canvas = renderer.domElement;
+            const w = canvas.width;
+            const h = canvas.height;
+            const box = new THREE.Box3().setFromObject(modelRoot);
+            const center = new THREE.Vector3();
+            const size = new THREE.Vector3();
+            box.getCenter(center);
+            box.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const dist = maxDim * 1.6;
+            const axisVec = (axis) => axis === 'x' ? new THREE.Vector3(1,0,0) : axis === 'y' ? new THREE.Vector3(0,1,0) : new THREE.Vector3(0,0,1);
+            const prevPos = camera.position.clone();
+            const prevUp = camera.up.clone();
+            const prevTarget = center.clone();
+
+            const capture = async (dir) => {
+                camera.up.copy(axisVec(modelState?.axes?.upAxis || 'y'));
+                camera.position.copy(center.clone().add(dir.multiplyScalar(dist)));
+                camera.lookAt(center);
+                renderer.render(scene, camera);
+                return canvas.toDataURL('image/png');
+            };
+
+            const frontDir = axisVec(modelState?.axes?.lengthAxis || 'z').multiplyScalar(-1);
+            const sideDir = axisVec(modelState?.axes?.widthAxis || 'x');
+            const topDir = axisVec(modelState?.axes?.upAxis || 'y');
+
+            const shots = [await capture(frontDir), await capture(sideDir), await capture(topDir)];
+            camera.position.copy(prevPos);
+            camera.up.copy(prevUp);
+            camera.lookAt(prevTarget);
+            renderer.render(scene, camera);
+
+            const imgObjs = await Promise.all(shots.map(src => new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = src;
+            })));
+
+            const headerH = 90;
+            const viewW = Math.floor(w * 0.62);
+            const panelW = w - viewW;
+            const viewH = Math.floor(h * 0.7);
+            const rowH = viewH;
+            const paramsH = Math.floor(h * 0.9);
+            const out = document.createElement('canvas');
+            out.width = w;
+            out.height = headerH + rowH * 2 + paramsH;
+            const ctx = out.getContext('2d');
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, out.width, out.height);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillText('车辆工图导出', 20, 36);
+            ctx.font = '12px sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('三视图 + 参数清单（当前设置）', 20, 58);
+            const labels = ['正视图', '侧视图', '俯视图'];
+            const viewRects = [
+                { x: 0, y: headerH, w: viewW, h: rowH },
+                { x: 0, y: headerH + rowH, w: viewW, h: rowH },
+                { x: 0, y: headerH + rowH * 2, w: viewW, h: paramsH }
+            ];
+            imgObjs.forEach((img, i) => {
+                const r = viewRects[i];
+                ctx.drawImage(img, r.x, r.y, r.w, r.h);
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(r.x + 12, r.y + 12, 88, 24);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '12px sans-serif';
+                ctx.fillText(labels[i], r.x + 20, r.y + 28);
+            });
+
+            const dimText = [
+                `车身总长: ${params.vehicleLength}m`,
+                `载物台宽度: ${params.vehicleWidth}m`,
+                `轴距: ${params.wheelbase}m`,
+                `轮胎宽度: ${params.tireWidth}m`,
+                `轮毂直径: ${params.rimDiameter}m`,
+                `底盘高度: ${params.chassisHeight}m`,
+                `车身厚度: ${params.bodyThickness}m`
+            ];
+            ctx.fillStyle = '#0b1220';
+            ctx.fillRect(viewW, headerH, panelW, rowH * 2 + paramsH);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('关键尺寸', viewW + 16, headerH + 24);
+            ctx.font = '12px sans-serif';
+            dimText.forEach((t, i) => {
+                ctx.fillText(t, viewW + 16, headerH + 48 + i * 18);
+            });
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('参数清单', viewW + 16, headerH + 48 + dimText.length * 18 + 18);
+            let yCursor = headerH + 48 + dimText.length * 18 + 40;
+            const drawSection = (title, items) => {
+                ctx.fillStyle = '#60a5fa';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText(title, viewW + 16, yCursor);
+                yCursor += 16;
+                ctx.fillStyle = '#cbd5f5';
+                ctx.font = '11px sans-serif';
+                items.forEach(line => {
+                    ctx.fillText(line, viewW + 16, yCursor);
+                    yCursor += 14;
+                });
+                yCursor += 6;
+            };
+            Object.values(parameterGroups).forEach(group => {
+                const lines = [];
+                (group.params || []).forEach(p => lines.push(`${p.label}: ${formatParamValue(p)}`));
+                (group.advancedParams || []).forEach(p => lines.push(`${p.label}: ${formatParamValue(p)}`));
+                drawSection(group.label, lines);
+            });
+
+            const drawDimLine = (x1, y1, x2, y2, label) => {
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(label, (x1 + x2) / 2 + 6, (y1 + y2) / 2 - 6);
+            };
+
+            const topRect = viewRects[2];
+            drawDimLine(topRect.x + 30, topRect.y + topRect.h - 30, topRect.x + topRect.w - 30, topRect.y + topRect.h - 30, `L ${params.vehicleLength}m`);
+            drawDimLine(topRect.x + 30, topRect.y + 30, topRect.x + 30, topRect.y + topRect.h - 30, `W ${params.vehicleWidth}m`);
+
+            const url = out.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vehicle-drawing.png';
+            a.click();
+        };
+
+        const buildParamSpec = () => {
+            const spec = {};
+            Object.values(parameterGroups).forEach(group => {
+                [...(group.params || []), ...(group.advancedParams || [])].forEach(p => {
+                    spec[p.key] = p;
+                });
+            });
+            return spec;
+        };
+
+        const buildParamLabelMap = () => {
+            const map = {};
+            Object.values(parameterGroups).forEach(group => {
+                [...(group.params || []), ...(group.advancedParams || [])].forEach(p => {
+                    map[p.key] = p.label || p.key;
+                });
+            });
+            return map;
+        };
+
+        const getRecommendContextParams = () => {
+            const keys = [
+                'vehicleLength', 'vehicleWidth', 'wheelbase',
+                'tireOuterDiameter', 'tireWidth', 'rimDiameter',
+                'chassisHeight', 'bodyThickness',
+                'motorPower', 'batteryCapacity', 'driveType',
+                'payloadCapacity', 'baffleWidth', 'baffleThickness',
+                'suspensionType', 'weightDistribution'
+            ];
+            const out = {};
+            keys.forEach(k => {
+                if (k in params) out[k] = params[k];
+            });
+            return out;
+        };
+
+        const replaceKeysWithLabels = (text, labelMap) => {
+            let out = String(text || '');
+            Object.keys(labelMap).forEach((key) => {
+                const label = labelMap[key];
+                const re = new RegExp(`\\b${key}\\b`, 'g');
+                out = out.replace(re, label);
+            });
+            out = out
+                .replace(/is too short for a typical vehicle/gi, '偏短')
+                .replace(/is too narrow for a typical vehicle/gi, '偏窄')
+                .replace(/is too small for a typical vehicle/gi, '偏小')
+                .replace(/Increase/gi, '建议提高')
+                .replace(/at least/gi, '至少')
+                .replace(/meters/gi, '米')
+                .replace(/too short/gi, '偏短')
+                .replace(/too narrow/gi, '偏窄')
+                .replace(/too small/gi, '偏小');
+            return out;
+        };
+
+        const getChassisHeightBounds = (tireOuterDiameter) => {
+            const baseMin = 0.18;
+            const min = Math.max(baseMin, tireOuterDiameter * 0.22);
+            const max = tireOuterDiameter * 0.45;
+            return { min: Math.min(min, max), max };
+        };
+
+        const applySuggestedParams = (data) => {
+            const spec = buildParamSpec();
+            const next = { ...params };
+            Object.keys(data || {}).forEach(k => {
+                if (!(k in next)) return;
+                const def = spec[k];
+                let val = data[k];
+                if (def?.type === 'select' || def?.type === 'buttons') {
+                    const opts = (def.options || []).map(o => o.value);
+                    if (opts.includes(val)) next[k] = val;
+                } else if (def?.type === 'multi') {
+                    const opts = new Set((def.options || []).map(o => o.value));
+                    if (Array.isArray(val)) next[k] = val.filter(v => opts.has(v));
+                } else if (typeof val === 'number') {
+                    if (typeof def?.min === 'number') val = Math.max(def.min, val);
+                    if (typeof def?.max === 'number') val = Math.min(def.max, val);
+                    if (k === 'chassisHeight') {
+                        const tireDiameter = typeof next.tireOuterDiameter === 'number' ? next.tireOuterDiameter : params.tireOuterDiameter;
+                        const bounds = getChassisHeightBounds(tireDiameter);
+                        val = Math.min(bounds.max, Math.max(bounds.min, val));
+                    }
+                    next[k] = val;
+                }
+            });
+            if (typeof next.chassisHeight === 'number') {
+                const tireDiameter = typeof next.tireOuterDiameter === 'number' ? next.tireOuterDiameter : params.tireOuterDiameter;
+                const bounds = getChassisHeightBounds(tireDiameter);
+                next.chassisHeight = Math.min(bounds.max, Math.max(bounds.min, next.chassisHeight));
+            }
+            suppressHistory = true;
+            Object.assign(params, next);
+            suppressHistory = false;
+            history.value = [JSON.parse(JSON.stringify(next))];
+            redoStack.value = [];
+        };
+
+        const buildParamSummary = () => {
+            const lines = [];
+            Object.values(parameterGroups).forEach(group => {
+                lines.push(`【${group.label}】`);
+                (group.params || []).forEach(p => lines.push(`- ${p.label}：${formatParamValue(p)}`));
+                (group.advancedParams || []).forEach(p => lines.push(`- ${p.label}：${formatParamValue(p)}`));
+                lines.push('');
+            });
+            return lines.join('\n').trim();
+        };
+
+        const buildPrefillReason = (intentText) => {
+            const intent = String(intentText || '');
+            const hints = [];
+            if (/越野|崎岖|复杂|爬坡|户外/.test(intent)) {
+                hints.push('提高底盘高度与轮胎宽度以增强通过性');
+            }
+            if (/速度|竞速|高速|灵活/.test(intent)) {
+                hints.push('控制车身长度并适度增加轴距以兼顾稳定与操控');
+            }
+            if (/载重|运输|货物|配送/.test(intent)) {
+                hints.push('适度增加车身宽度与载重参数以提升承载能力');
+            }
+            if (params.vehicleLength > initialParams.vehicleLength + 0.15) {
+                hints.push('适当拉长车身以提升直线稳定性');
+            }
+            if (params.vehicleWidth > initialParams.vehicleWidth + 0.1) {
+                hints.push('加宽载物台以扩大可用空间');
+            }
+            if (!hints.length) {
+                hints.push('综合稳定性、通过性与载重需求进行平衡设置');
+            }
+            const topHints = hints.slice(0, 2);
+            return `推荐逻辑：\n- ${topHints.join('\n- ')}`;
+        };
+
+        const localRecommend = (intentText, baseParams) => {
+            const intent = String(intentText || '');
+            const next = { ...baseParams };
+            if (/校园|学校|运输|配送|货物|载重/.test(intent)) {
+                next.payloadCapacity = Math.min(200, baseParams.payloadCapacity + 30);
+                next.vehicleWidth = Math.min(2.0, baseParams.vehicleWidth + 0.1);
+                next.vehicleLength = Math.min(4.2, baseParams.vehicleLength + 0.2);
+            }
+            if (/越野|崎岖|爬坡|复杂|户外/.test(intent)) {
+                next.chassisHeight = Math.min(0.55, baseParams.chassisHeight + 0.08);
+                next.tireWidth = Math.min(0.38, baseParams.tireWidth + 0.04);
+            }
+            if (/速度|高速|竞速|灵活/.test(intent)) {
+                next.vehicleLength = Math.max(3.0, baseParams.vehicleLength - 0.1);
+                next.wheelbase = Math.min(2.6, baseParams.wheelbase + 0.1);
+            }
+            if (/续航|电池|里程/.test(intent)) {
+                next.batteryCapacity = Math.min(90, baseParams.batteryCapacity + 10);
+            }
+            return {
+                result: next,
+                reason: `AI 超时，已使用本地规则进行预填。${buildPrefillReason(intentText)}`
+            };
+        };
+
+        const closeIntro = () => {
+            showIntro.value = false;
+        };
+
+        const generateIntroParams = async () => {
+            introLoading.value = true;
+            introError.value = '';
+            introStatus.value = 'AI 正在生成推荐参数...';
+            try {
+                const requestOnce = async () => {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 180000);
+                    const resp = await fetch(`${API_BASE}/api/recommend`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userIntent: introInput.value,
+                        params: getRecommendContextParams(),
+                        keys: Object.keys(buildParamSpec())
+                    }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timer);
+                    const text = await resp.text();
+                    if (!resp.ok) throw new Error(text);
+                    return text;
+                };
+                let text = '';
+                try {
+                    text = await requestOnce();
+                } catch (err) {
+                    const msg = (err && (err.message || err)) ? String(err.message || err) : '';
+                    if (err && err.name === 'AbortError') {
+                        text = await requestOnce();
+                    } else if (/timed out|超时/i.test(msg)) {
+                        text = await requestOnce();
+                    } else {
+                        throw err;
+                    }
+                }
+                const parsed = parseRecommendResponse(text);
+                if (!parsed.result || typeof parsed.result !== 'object') throw new Error('未解析到JSON推荐结果');
+                applySuggestedParams(parsed.result);
+                const reasonText = parsed.reason
+                    ? `基于你的设计需求「${introInput.value.trim() || '未填写'}」，建议如下：\n- ${parsed.reason.replace(/\s+/g, ' ').trim()}`
+                    : `基于你的设计需求「${introInput.value.trim() || '未填写'}」，建议如下：\n${buildPrefillReason(introInput.value)}`;
+                const summaryText = buildParamSummary();
+                if (summaryText) {
+                    chatHistory.value.push({
+                        role: 'ai',
+                        content: `${reasonText}\n\n已根据你的需求完成参数预填，详情如下：\n${summaryText}`
+                    });
+                }
+                introStatus.value = '已根据需求生成一套推荐参数，你可以继续微调。';
+                showIntro.value = false;
+                } catch (err) {
+                    const msg = (err && (err.message || err)) ? String(err.message || err) : '';
+                    if (/timed out|超时/i.test(msg) || (err && err.name === 'AbortError')) {
+                        introError.value = 'AI 响应超时，请稍后重试（已将等待时间延长到 180 秒）。';
+                        introStatus.value = '生成失败，请检查 API 或重试。';
+                    } else if (/Failed to fetch|NetworkError/i.test(msg)) {
+                        introError.value = `无法连接 AI 服务（${API_BASE}），请确认 node server.js 正在运行。`;
+                        introStatus.value = '生成失败，请检查 API 或重试。';
+                    } else {
+                        introError.value = 'AI 服务未连接，请确认 node server.js 正在运行。';
+                        introStatus.value = '生成失败，请检查 API 或重试。';
+                    }
+                } finally {
+                    introLoading.value = false;
+                }
+            };
+
+        const setViewMode = (mode) => {
+            viewMode.value = mode;
+            if (window.setViewMode) window.setViewMode(mode);
+        };
+
+        const getStressValueForMesh = (mesh) => {
+            if (!modelState || !mesh || !mesh.userData || !mesh.userData._baseCenter) return null;
+            const stats = stressStats.value;
+            const center = mesh.userData._baseCenter;
+            const axes = modelState.axes;
+            const axisValue = (v, axis) => axis === 'x' ? v.x : axis === 'z' ? v.z : v.y;
+            const isFront = axisValue(center, axes.lengthAxis) < axisValue(axes.center, axes.lengthAxis);
+            const isRight = axisValue(center, axes.widthAxis) >= axisValue(axes.center, axes.widthAxis);
+            const name = normalize(mesh.name || '');
+            if (name.includes('chassis')) return stats.chassisLoad;
+            if (name.includes('tire') || name.includes('rim')) {
+                if (isFront && !isRight) return stats.lf;
+                if (isFront && isRight) return stats.rf;
+                if (!isFront && !isRight) return stats.lr;
+                return stats.rr;
+            }
+            if (name.includes('suspension') || name.includes('shock') || name.includes('steering')) {
+                if (isFront && !isRight) return Math.round(stats.lf * 0.9);
+                if (isFront && isRight) return Math.round(stats.rf * 0.9);
+                if (!isFront && !isRight) return Math.round(stats.lr * 0.9);
+                return Math.round(stats.rr * 0.9);
+            }
+            const axleLoad = isFront ? stats.front : stats.rear;
+            return Math.min(100, Math.max(0, Math.round(axleLoad * 0.6)));
+        };
+
+        const getStressLabelForMesh = (mesh) => {
+            if (!modelState || !mesh || !mesh.userData || !mesh.userData._baseCenter) return '部件载荷';
+            const name = normalize(mesh.name || '');
+            const center = mesh.userData._baseCenter;
+            const axes = modelState.axes;
+            const axisValue = (v, axis) => axis === 'x' ? v.x : axis === 'z' ? v.z : v.y;
+            const isFront = axisValue(center, axes.lengthAxis) < axisValue(axes.center, axes.lengthAxis);
+            const side = axisValue(center, axes.widthAxis) >= axisValue(axes.center, axes.widthAxis) ? '右' : '左';
+            const axle = isFront ? '前' : '后';
+            if (name.includes('tire') || name.includes('rim')) return `${side}${axle}轮载荷`;
+            if (name.includes('suspension') || name.includes('shock') || name.includes('steering')) return `${side}${axle}悬挂载荷`;
+            return `${side}${axle}结构载荷`;
+        };
+
+        const applyStressOverlay = (enabled) => {
+            if (!modelRoot) return;
+            modelRoot.traverse((child) => {
+                if (!child.isMesh || !child.material) return;
+                if (!enabled) {
+                    if (window.setViewMode) window.setViewMode(viewMode.value);
+                    return;
+                }
+                const load = getStressValueForMesh(child);
+                if (load === null) return;
+                const t = Math.min(1, Math.max(0, load / 100));
+                const color = new THREE.Color().setHSL(0.6 - 0.6 * t, 0.8, 0.55);
+                const applyMat = (mat) => {
+                    if (mat.map) {
+                        mat.color.copy(color);
+                    } else {
+                        mat.color.copy(color);
+                    }
+                    if (mat.emissive) mat.emissive.copy(color).multiplyScalar(0.2);
+                    mat.needsUpdate = true;
+                };
+                if (Array.isArray(child.material)) child.material.forEach(applyMat);
+                else applyMat(child.material);
+            });
+        };
+
+        const toggleStressAnalysis = () => {
+            if (!stressEnabled.value) stressHover.value = null;
+            applyStressOverlay(stressEnabled.value);
+        };
+
+        const toggleViewMenu = () => {
+            showViewMenu.value = !showViewMenu.value;
+        };
+
+        const setCameraView = (view) => {
+            if (!modelRoot || !camera) return;
+            const box = new THREE.Box3().setFromObject(modelRoot);
+            const center = new THREE.Vector3();
+            const size = new THREE.Vector3();
+            box.getCenter(center);
+            box.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const dist = maxDim * 1.6;
+            const axisVec = (axis) => axis === 'x' ? new THREE.Vector3(1,0,0) : axis === 'z' ? new THREE.Vector3(0,0,1) : new THREE.Vector3(0,1,0);
+            const axes = modelState?.axes || { lengthAxis: 'z', widthAxis: 'x', upAxis: 'y' };
+            const frontDir = axisVec(axes.lengthAxis).multiplyScalar(-1);
+            const sideDir = axisVec(axes.widthAxis);
+            const topDir = axisVec(axes.upAxis);
+            const dir = view === 'front' ? frontDir : view === 'side' ? sideDir : topDir;
+            camera.up.copy(axisVec(axes.upAxis));
+            camera.position.copy(center.clone().add(dir.multiplyScalar(dist)));
+            camera.lookAt(center);
+            if (renderer) renderer.render(scene, camera);
+            showViewMenu.value = false;
+        };
+
+        const parameterGroups = {
+            chassis: {
+                label: "车身与底盘",
+                icon: "directions_car",
+                desc: "决定车辆的基础尺寸和空间布局。",
+                params: [
+                    { key: 'vehicleLength', label: '车身总长', min: 2.8, max: 4.8, step: 0.1, unit: 'm', type: 'range', eduText: '车身越长，直线稳定性越好，但转弯半径会更大。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'vehicleWidth', label: '载物台宽度', min: 1.2, max: 2.0, step: 0.05, unit: 'm', type: 'range', eduText: '宽度更大载物能力更强，但会增加体积与阻力。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'wheelbase', label: '轴距', min: 1.6, max: 3.0, step: 0.1, unit: 'm', type: 'range', eduText: '轴距越大行驶越稳，轴距越小操控更灵活。', targetKeywords: ['suspension', 'suspension_mount', 'suspension_link', 'drive_shaft', 'steering_knuckle'], targetPartLabel: '悬挂与转向' }
+                ],
+                advancedParams: [
+                    { key: 'chassisHeight', label: '底盘高度', min: 0.2, max: 0.6, step: 0.02, unit: 'm', type: 'range', eduText: '提高底盘高度有利于通过性，但重心会上升。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'bodyThickness', label: '车身厚度', min: 0.02, max: 0.08, step: 0.005, unit: 'm', type: 'range', eduText: '厚度越大强度越高，但重量也会上升。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' }
+                ]
+            },
+            wheels: {
+                label: "轮胎与悬挂",
+                icon: "motion_photos_on",
+                desc: "影响车辆的通过性、抓地力与舒适性。",
+                params: [
+                    { key: 'tireWidth', label: '轮胎宽度', min: 0.2, max: 0.4, step: 0.01, unit: 'm', type: 'range', eduText: '宽胎抓地力更强，但滚阻更大。', targetKeywords: ['tire'], targetPartLabel: '轮胎' },
+                    { key: 'rimDiameter', label: '轮毂直径', min: 0.2, max: 0.6, step: 0.02, unit: 'm', type: 'range', eduText: '轮毂直径影响轮胎侧壁厚度与刚性。', targetKeywords: ['rim', 'wheel hub', 'hub'], targetPartLabel: '轮毂' },
+                    { key: 'suspensionType', label: '悬挂类型', unit: '', type: 'select',
+                      options: [
+                          { value: 'independent', label: '独立悬挂' },
+                          { value: 'macpherson', label: '麦弗逊' },
+                          { value: 'double_wishbone', label: '双摇臂' },
+                          { value: 'torsion', label: '扭力梁' }
+                      ],
+                      eduText: '不同悬挂类型在舒适性与操控性上各有取舍。',
+                      targetKeywords: ['suspension', 'shock', 'suspension_mount'],
+                      targetPartLabel: '悬挂系统'
+                    }
+                ],
+                advancedParams: [
+                    { key: 'suspensionStiffness', label: '悬挂硬度', min: 20, max: 90, step: 5, unit: '%', type: 'range', eduText: '硬度越高操控更直接，但舒适性下降。', targetKeywords: ['suspension', 'shock', 'suspension_mount'], targetPartLabel: '悬挂系统' },
+                    { key: 'wheelOffset', label: '车轮偏移', min: -0.02, max: 0.02, step: 0.002, unit: 'm', type: 'range', eduText: '偏移量会影响稳定性和外观姿态。', targetKeywords: ['tire', 'rim', 'steering_knuckle'], targetPartLabel: '轮胎与转向' },
+                    { key: 'steeringAngle', label: '车轮偏向角范围', min: 5, max: 35, step: 1, unit: 'deg', type: 'range', eduText: '设置允许的最大偏转角范围，不直接改变模型。', targetKeywords: ['steering_knuckle'], targetPartLabel: '转向机构' }
+                ]
+            },
+            power: {
+                label: "动力系统",
+                icon: "battery_charging_full",
+                desc: "决定车辆的加速性能与续航能力。",
+                params: [
+                    { key: 'motorPower', label: '电机功率', min: 60, max: 300, step: 10, unit: 'kW', type: 'range', eduText: '功率越大，加速性能越强。', targetKeywords: ['motor'], targetPartLabel: '电机' },
+                    { key: 'batteryCapacity', label: '电池容量', min: 30, max: 120, step: 5, unit: 'kWh', type: 'range', eduText: '容量越大续航越长，但重量会增加。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'driveType', label: '驱动方式', unit: '', type: 'buttons',
+                      options: [
+                          { value: 'fwd', label: '前驱' },
+                          { value: 'rwd', label: '后驱' },
+                          { value: 'awd', label: '四驱' }
+                      ],
+                      eduText: '驱动方式影响操控与通过性。',
+                      targetKeywords: ['drive_shaft', 'motor', 'gearbox'],
+                      targetPartLabel: '动力传动'
+                    }
+                ],
+                advancedParams: [
+                    { key: 'motorRPM', label: '电机转速', min: 3000, max: 12000, step: 500, unit: 'rpm', type: 'range', eduText: '转速越高，最高速度潜力越大。', targetKeywords: ['motor'], targetPartLabel: '电机' },
+                    { key: 'driveAdjust', label: '驱动系统调节', min: 0, max: 100, step: 5, unit: '%', type: 'range', eduText: '调整动力响应与输出分配。', targetKeywords: ['drive_shaft', 'gearbox', 'motor'], targetPartLabel: '动力传动' }
+                ]
+            },
+            extras: {
+                label: "附属载荷",
+                icon: "widgets",
+                desc: "扩展功能与负载能力设置。",
+                params: [
+                    { key: 'payloadCapacity', label: '载重能力', min: 50, max: 400, step: 10, unit: 'kg', type: 'range', eduText: '载重越高，结构要求越高。' },
+                    { key: 'baffleWidth', label: '挡板宽度', min: 0.2, max: 0.8, step: 0.02, unit: 'm', type: 'range', eduText: '挡板宽度影响防护覆盖范围。' },
+                    { key: 'baffleThickness', label: '挡板厚度', min: 0.01, max: 0.1, step: 0.005, unit: 'm', type: 'range', eduText: '厚度越大强度越高，但重量增加。' },
+                    { key: 'auxiliaryModules', label: '附加模块', unit: '', type: 'multi',
+                      options: [
+                          { value: 'lights', label: '灯光' },
+                          { value: 'rack', label: '货架' },
+                          { value: 'sensor_basic', label: '基础传感器' }
+                      ],
+                      eduText: '附加模块用于扩展车辆功能。'
+                    }
+                ],
+                advancedParams: [
+                    { key: 'weightDistribution', label: '载重分布', min: 30, max: 70, step: 2, unit: '%', type: 'range', eduText: '前后配重影响稳定性和牵引力。' },
+                    { key: 'smartSensors', label: '智能传感器', unit: '', type: 'multi',
+                      options: [
+                          { value: 'lidar', label: '激光雷达' },
+                          { value: 'imu', label: 'IMU加速度计' },
+                          { value: 'gnss', label: 'GNSS定位' }
+                      ],
+                      eduText: '智能传感器提升感知与自动化能力。'
+                    }
+                ]
+            }
+        };
+
+        const targetMeta = {
+            vehicleLength: { keywords: ['chassis'], label: 'Chassis' },
+            vehicleWidth: { keywords: ['chassis'], label: 'Chassis' },
+            wheelbase: { keywords: ['suspension', 'suspension_mount', 'suspension_link', 'drive_shaft', 'steering_knuckle'], label: 'Suspension' },
+            chassisHeight: { keywords: ['chassis'], label: 'Chassis' },
+            bodyThickness: { keywords: ['chassis'], label: 'Chassis' },
+            tireWidth: { keywords: ['tire'], label: 'Tire' },
+            rimDiameter: { keywords: ['rim', 'wheel hub', 'hub'], label: 'Rim' },
+            suspensionType: { keywords: ['suspension', 'shock', 'suspension_mount'], label: 'Suspension' },
+            suspensionStiffness: { keywords: ['suspension', 'shock', 'suspension_mount'], label: 'Suspension' },
+            wheelOffset: { keywords: ['tire', 'rim', 'steering_knuckle'], label: 'Wheel/Steering' },
+            steeringAngle: { keywords: ['steering_knuckle'], label: 'Steering' },
+            motorPower: { keywords: ['motor'], label: 'Motor' },
+            motorRPM: { keywords: ['motor'], label: 'Motor' },
+            batteryCapacity: { keywords: ['chassis'], label: 'Chassis' },
+            driveType: { keywords: ['drive_shaft', 'motor', 'gearbox'], label: 'Drivetrain' },
+            driveAdjust: { keywords: ['drive_shaft', 'gearbox', 'motor'], label: 'Drivetrain' },
+            payloadCapacity: { keywords: ['chassis'], label: 'Chassis' },
+            baffleWidth: { keywords: ['guardrail', 'anti-collision'], label: 'Guardrail' },
+            baffleThickness: { keywords: ['guardrail', 'anti-collision'], label: 'Guardrail' },
+            auxiliaryModules: { keywords: ['chassis'], label: 'Chassis' },
+            weightDistribution: { keywords: ['chassis'], label: 'Chassis' },
+            smartSensors: { keywords: ['chassis'], label: 'Chassis' }
+        };
+
+        Object.values(parameterGroups).forEach(group => {
+            [...(group.params || []), ...(group.advancedParams || [])].forEach(param => {
+                const meta = targetMeta[param.key];
+                if (!meta) return;
+                param.targetKeywords = meta.keywords;
+                param.targetPartLabel = meta.label;
+            });
+        });
+
+        const formatParamValue = (param) => {
+            const val = params[param.key];
+            if (param.type === 'select') {
+                const match = (param.options || []).find(o => o.value === val);
+                return match ? match.label : '未选择';
+            }
+            if (param.type === 'buttons') {
+                const match = (param.options || []).find(o => o.value === val);
+                return match ? match.label : '未选';
+            }
+            if (param.type === 'multi') {
+                return Array.isArray(val) && val.length ? `${val.length}项` : '未选';
+            }
+            return `${val}${param.unit || ''}`;
+        };
+
+        const toggleMultiParam = (key, value) => {
+            if (!Array.isArray(params[key])) params[key] = [];
+            const idx = params[key].indexOf(value);
+            if (idx >= 0) params[key].splice(idx, 1);
+            else params[key].push(value);
+            onParamChange();
+        };
+
+        // --- Metrics ---
+        const metrics = computed(() => {
+            const p = params;
+            // Calculations (Simplified Physics)
+            const payloadScore = (p.payloadCapacity * 0.4) + (p.vehicleWidth * 10) - (p.bodyThickness * 200);
+            const rangeScore = (p.batteryCapacity * 0.8) - (p.tireWidth * 50) - (p.motorPower * 0.2);
+            const torqueScore = (p.motorPower * 0.6) - (p.tireOuterDiameter * 30);
+            const stabilityScore = (p.wheelbase * 18) + (p.vehicleWidth * 15) - (p.chassisHeight * 60);
+            
+            const norm = v => Math.min(100, Math.max(0, Math.round(v)));
+            return {
+                payload: norm(payloadScore),
+                range: norm(rangeScore),
+                torque: norm(torqueScore),
+                stability: norm(stabilityScore)
+            };
+        });
+
+        const stressStats = computed(() => {
+            const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+            let front = clamp(params.weightDistribution || 50, 30, 70);
+            const payloadShift = clamp((params.payloadCapacity || 0) / 200 * 8, 0, 8);
+            front = clamp(front - payloadShift, 28, 72);
+            if (params.driveType === 'fwd') front = clamp(front + 4, 28, 75);
+            if (params.driveType === 'rwd') front = clamp(front - 4, 25, 72);
+            if ((params.motorPower || 0) > 140) {
+                front = params.driveType === 'fwd' ? clamp(front + 2, 28, 75) :
+                        params.driveType === 'rwd' ? clamp(front - 2, 25, 72) : front;
+            }
+            const ratio = (params.wheelbase || 2.0) / Math.max(2.5, (params.vehicleLength || 3.5));
+            if (ratio < 0.55) front = clamp(front - 2, 25, 72);
+            if (ratio > 0.7) front = clamp(front + 2, 28, 75);
+            const rear = 100 - Math.round(front);
+
+            const lrBias = clamp((params.wheelOffset || 0) * 300, -8, 8);
+            const left = clamp(50 - lrBias / 2, 40, 60);
+            const right = 100 - left;
+
+            const lf = Math.round(front * (left / 100));
+            const rf = Math.round(front * (right / 100));
+            const lr = Math.round(rear * (left / 100));
+            const rr = Math.round(rear * (right / 100));
+
+            const chassisLoad = clamp(Math.round(8 + (params.bodyThickness || 0.04) * 200 + (params.payloadCapacity || 0) * 0.05), 8, 22);
+            const maxWheel = Math.max(lf, rf, lr, rr);
+            const maxWheelLabel = maxWheel === lf ? '左前轮' : maxWheel === rf ? '右前轮' : maxWheel === lr ? '左后轮' : '右后轮';
+
+            let warning = '无明显异常';
+            if (params.chassisHeight > params.tireOuterDiameter * 0.45) {
+                warning = '重心偏高';
+            } else if (Math.abs(lrBias) >= 6) {
+                warning = '左右偏载';
+            } else if (front >= 62) {
+                warning = '重心偏前';
+            } else if (rear >= 62) {
+                warning = '重心偏后';
+            }
+
+            return {
+                front: Math.round(front),
+                rear: Math.round(rear),
+                left: Math.round(left),
+                right: Math.round(right),
+                lf, rf, lr, rr,
+                chassisLoad,
+                lrBias: Math.abs(Math.round(lrBias)),
+                maxPart: `${maxWheelLabel}悬挂`,
+                warning
+            };
+        });
+
+        // --- 3D Logic ---
+        let scene, camera, renderer, vehicleGroup;
+        let modelLoaded = false;
+        let modelRoot = null;
+        let modelState = null;
+        const partsMap = {}; // name -> mesh
+        const partsIndex = [];
+        const normalize = (name) => (name || '').toLowerCase().trim();
+        const rebuildPartsIndex = (root) => {
+            partsIndex.length = 0;
+            Object.keys(partsMap).forEach(k => delete partsMap[k]);
+            root.traverse((child) => {
+                if (!child.isMesh) return;
+                partsIndex.push(child);
+                const key = child.name || '';
+                if (!partsMap[key]) partsMap[key] = [];
+                partsMap[key].push(child);
+            });
+        };
+
+        const initThree = () => {
+            const container = document.getElementById('canvas-container');
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a); // Match bg-dark
+            scene.fog = new THREE.Fog(0x0f172a, 5, 20);
+
+            camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 50);
+            camera.position.set(6, 4, 7);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(w, h);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambient);
+            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+            sun.position.set(5, 10, 5);
+            sun.castShadow = true;
+            sun.shadow.mapSize.width = 1024; 
+            sun.shadow.mapSize.height = 1024;
+            scene.add(sun);
+            // Rim light for cool effect
+            const rim = new THREE.SpotLight(0x3b82f6, 5);
+            rim.position.set(-5, 1, -5);
+            rim.lookAt(0,0,0);
+            scene.add(rim);
+
+            // Floor
+            const grid = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
+            scene.add(grid);
+
+            vehicleGroup = new THREE.Group();
+            scene.add(vehicleGroup);
+
+            updateGeometry();
+            animate();
+            
+            // Orbit Controls logic
+            setupControls(container);
+            window.addEventListener('resize', handleResize);
+        };
+
+        const normalizeName = (name) => (name || '').replace(/:\d+$/,'').trim().toLowerCase();
+        const findFirstByName = (root, target) => {
+            if (!root || !target) return null;
+            const t = normalizeName(target);
+            let found = null;
+            root.traverse((child) => {
+                if (found || !child.name) return;
+                const n = normalizeName(child.name);
+                if (n.startsWith(t)) found = child;
+            });
+            return found;
+        };
+        const collectMeshesByName = (root, target) => {
+            if (!root || !target) return [];
+            const t = normalizeName(target);
+            const out = [];
+            root.traverse((child) => {
+                if (!child.isMesh || !child.name) return;
+                const n = normalizeName(child.name);
+                if (n.startsWith(t)) out.push(child);
+            });
+            return out;
+        };
+        const collectMeshesByContains = (root, keyword) => {
+            if (!root || !keyword) return [];
+            const t = normalizeName(keyword);
+            const out = [];
+            root.traverse((child) => {
+                if (!child.isMesh || !child.name) return;
+                const n = normalizeName(child.name);
+                if (n.includes(t)) out.push(child);
+            });
+            return out;
+        };
+
+        const buildModelState = (root) => {
+            const rootWorldToLocal = (v) => root.worldToLocal(v.clone());
+            const meshWorldCenter = (mesh) => {
+                const box = new THREE.Box3().setFromObject(mesh);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                return center;
+            };
+            const calcLocalBox = (items) => {
+                const box = new THREE.Box3();
+                let has = false;
+                items.forEach(m => {
+                    const worldBox = new THREE.Box3().setFromObject(m.mesh);
+                    const min = worldBox.min;
+                    const max = worldBox.max;
+                    const corners = [
+                        new THREE.Vector3(min.x, min.y, min.z),
+                        new THREE.Vector3(min.x, min.y, max.z),
+                        new THREE.Vector3(min.x, max.y, min.z),
+                        new THREE.Vector3(min.x, max.y, max.z),
+                        new THREE.Vector3(max.x, min.y, min.z),
+                        new THREE.Vector3(max.x, min.y, max.z),
+                        new THREE.Vector3(max.x, max.y, min.z),
+                        new THREE.Vector3(max.x, max.y, max.z)
+                    ];
+                    corners.forEach(c => box.expandByPoint(rootWorldToLocal(c)));
+                    has = true;
+                });
+                if (!has) {
+                    box.min.set(0, 0, 0);
+                    box.max.set(0, 0, 0);
+                }
+                return box;
+            };
+            const meshes = [];
+            root.traverse((child) => {
+                if (!child.isMesh) return;
+                const pathParts = [];
+                let p = child.parent;
+                while (p) {
+                    if (p.name) pathParts.push(normalizeName(p.name));
+                    p = p.parent;
+                }
+                const box = new THREE.Box3().setFromObject(child);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const worldCenter = meshWorldCenter(child);
+                const localCenter = rootWorldToLocal(worldCenter);
+                child.userData._baseCenter = localCenter.clone();
+                meshes.push({
+                    mesh: child,
+                    name: normalizeName(child.name),
+                    path: pathParts.join(' / '),
+                    basePos: child.position.clone(),
+                    baseScale: child.scale.clone(),
+                    baseRot: child.rotation.clone(),
+                    baseCenter: localCenter,
+                    size
+                });
+            });
+
+            const byContains = (kw) => meshes.filter(m => m.name.includes(normalizeName(kw)));
+            const uniq = (items) => {
+                const map = new Map();
+                items.forEach(i => map.set(i.mesh.uuid, i));
+                return Array.from(map.values());
+            };
+            const nameHas = (name, kw) => name.includes(normalizeName(kw));
+
+            const chassis = uniq(byContains('chassis'));
+            const guardrail = uniq([...byContains('anti-collision'), ...byContains('guardrail')]);
+            const rimMeshes = uniq([...byContains('rim'), ...byContains('wheel hub'), ...byContains('wheel_hub'), ...byContains('hub'), ...byContains('cover plate')]);
+            const tireMeshes = uniq(byContains('tire'));
+
+            const chassisBox = calcLocalBox(chassis);
+            const chassisSize = new THREE.Vector3();
+            const chassisCenter = new THREE.Vector3();
+            chassisBox.getSize(chassisSize);
+            chassisBox.getCenter(chassisCenter);
+
+            const wheelSources = tireMeshes.length ? tireMeshes : rimMeshes;
+            const wheelBox = wheelSources.length ? calcLocalBox(wheelSources) : calcLocalBox(chassis);
+            const wheelSize = new THREE.Vector3();
+            wheelBox.getSize(wheelSize);
+
+            const axisOrder = ['x', 'y', 'z'];
+            const sizeByAxis = {
+                x: wheelSize.x || chassisSize.x,
+                y: wheelSize.y || chassisSize.y,
+                z: wheelSize.z || chassisSize.z
+            };
+            axisOrder.sort((a, b) => sizeByAxis[a] - sizeByAxis[b]);
+            const upAxis = axisOrder[0];
+            const horizontalAxes = axisOrder.slice(1);
+            const lengthAxis = sizeByAxis[horizontalAxes[0]] >= sizeByAxis[horizontalAxes[1]]
+                ? horizontalAxes[0]
+                : horizontalAxes[1];
+            const widthAxis = horizontalAxes.find(a => a !== lengthAxis);
+
+            const chassisLength = chassisSize[lengthAxis] || 1;
+            const chassisWidth = chassisSize[widthAxis] || 1;
+            const chassisHeight = chassisSize[upAxis] || 1;
+            const trackWidth = wheelSize[widthAxis] || chassisWidth;
+            const chassisExtents = { min: chassisBox.min[upAxis], max: chassisBox.max[upAxis] };
+            const tireExtents = { min: wheelBox.min[upAxis], max: wheelBox.max[upAxis] };
+            const hasWheelExtents = wheelSources.length > 0 && (tireExtents.max - tireExtents.min) > 0.0001;
+
+            const axisValue = (v, axis) => axis == 'x' ? v.x : axis == 'z' ? v.z : v.y;
+            const isFront = (m) => axisValue(m.baseCenter, lengthAxis) < axisValue(chassisCenter, lengthAxis);
+            const isRear = (m) => axisValue(m.baseCenter, lengthAxis) > axisValue(chassisCenter, lengthAxis);
+            const sideSign = (m) => axisValue(m.baseCenter, widthAxis) >= axisValue(chassisCenter, widthAxis) ? 1 : -1;
+
+            const fixedKeywords = ['gearbox', 'differential frame', 'arm_assembly'];
+            const stretchKeywords = ['suspension_mount', 'suspension'];
+            const wheelKeywords = ['steering_knuckle', 'shock', 'suspension_link', 'drive_shaft'];
+            const fixedParts = uniq(meshes.filter(m => fixedKeywords.some(k => nameHas(m.name, k) || nameHas(m.path, k))));
+            const stretchWidthParts = uniq(meshes.filter(m => stretchKeywords.some(k => nameHas(m.name, k) || nameHas(m.path, k))));
+            const wheelParts = uniq(meshes.filter(m => wheelKeywords.some(k => nameHas(m.name, k) || nameHas(m.path, k))));
+
+            const exclude = new Set([...chassis, ...guardrail].map(m => m.mesh.uuid));
+            const frontGroup = uniq(meshes.filter(m => isFront(m) && !exclude.has(m.mesh.uuid)));
+            const rearGroup = uniq(meshes.filter(m => isRear(m) && !exclude.has(m.mesh.uuid)));
+
+            const rimParts = rimMeshes.map(m => ({ ...m, isFront: isFront(m), isRear: isRear(m), side: sideSign(m) }));
+            const tireParts = tireMeshes.map(m => ({ ...m, isFront: isFront(m), isRear: isRear(m), side: sideSign(m) }));
+            const fixedPartsWithSide = fixedParts.map(m => ({ ...m, side: sideSign(m), isFront: isFront(m), isRear: isRear(m) }));
+            const stretchWidthPartsWithSide = stretchWidthParts.map(m => ({ ...m, side: sideSign(m), isFront: isFront(m), isRear: isRear(m) }));
+            const wheelPartsWithSide = wheelParts.map(m => ({ ...m, side: sideSign(m), isFront: isFront(m), isRear: isRear(m) }));
+            return {
+                axes: { lengthAxis, widthAxis, upAxis, center: chassisCenter },
+                chassisExtents,
+                tireExtents,
+                hasWheelExtents,
+                unitScale: {
+                    length: chassisLength / params.vehicleLength,
+                    width: chassisWidth / params.vehicleWidth,
+                    track: trackWidth / params.wheelbase,
+                    height: chassisHeight / params.chassisHeight
+                },
+                baseParams: {
+                    vehicleLength: params.vehicleLength,
+                    vehicleWidth: params.vehicleWidth,
+                    wheelbase: params.wheelbase,
+                    tireOuterDiameter: params.tireOuterDiameter,
+                    tireWidth: params.tireWidth,
+                    rimDiameter: params.rimDiameter,
+                    chassisHeight: params.chassisHeight,
+                    bodyThickness: params.bodyThickness,
+                    wheelOffset: params.wheelOffset,
+                    steeringAngle: params.steeringAngle,
+                    baffleWidth: params.baffleWidth,
+                    baffleThickness: params.baffleThickness
+                },
+                chassis,
+                guardrail,
+                frontGroup,
+                rearGroup,
+                fixedParts: fixedPartsWithSide,
+                stretchWidthParts: stretchWidthPartsWithSide,
+                wheelParts: wheelPartsWithSide,
+                rimParts,
+                tireParts
+            };
+        };
+
+        const updateModelTransforms = () => {
+            if (!modelState) return;
+            const p = params;
+            const base = modelState.baseParams;
+            const unit = modelState.unitScale || { length: 1, width: 1, track: 1, height: 1 };
+
+            const lenScale = base.vehicleLength ? (p.vehicleLength / base.vehicleLength) : 1;
+            const widthScale = base.vehicleWidth ? (p.vehicleWidth / base.vehicleWidth) : 1;
+            const thickScale = base.bodyThickness ? (p.bodyThickness / base.bodyThickness) : 1;
+            const bounds = getChassisHeightBounds(p.tireOuterDiameter);
+            const clampedChassisHeight = Math.min(bounds.max, Math.max(bounds.min, p.chassisHeight));
+            let heightDelta = (clampedChassisHeight - base.chassisHeight) * unit.height;
+            if (modelState.hasWheelExtents && modelState.chassisExtents && modelState.tireExtents) {
+                const chassisTop = modelState.chassisExtents.max;
+                const chassisBottom = modelState.chassisExtents.min;
+                const tireTop = modelState.tireExtents.max;
+                const tireBottom = modelState.tireExtents.min;
+                const tireSpan = Math.max(0.0001, tireTop - tireBottom);
+                const clearance = tireSpan * 0.08;
+                const minDelta = (tireBottom + clearance) - chassisBottom;
+                const maxDelta = (tireTop - clearance) - chassisTop;
+                if (minDelta <= maxDelta) {
+                    heightDelta = Math.min(maxDelta, Math.max(minDelta, heightDelta));
+                }
+            }
+            const lengthDelta = (p.vehicleLength - base.vehicleLength) * unit.length;
+            const frontOffset = -lengthDelta / 2;
+            const rearOffset = lengthDelta / 2;
+
+            const axisScale = (scale, len, wid, height) => {
+                const s = scale.clone();
+                s[modelState.axes.lengthAxis] *= len;
+                s[modelState.axes.widthAxis] *= wid;
+                s[modelState.axes.upAxis] *= height;
+                return s;
+            };
+
+            const getScaleCorrection = (item, scaleVec) => {
+                const rel = item.baseCenter.clone().sub(item.basePos);
+                const scaledRel = rel.clone();
+                scaledRel.x *= scaleVec.x;
+                scaledRel.y *= scaleVec.y;
+                scaledRel.z *= scaleVec.z;
+                return rel.sub(scaledRel);
+            };
+
+            modelState.chassis.forEach(item => {
+                const s = axisScale(item.baseScale, lenScale, widthScale, thickScale);
+                item.mesh.scale.copy(s);
+                const correction = getScaleCorrection(item, s.clone().divide(item.baseScale));
+                const pos = item.basePos.clone().add(correction);
+                pos[modelState.axes.upAxis] += heightDelta;
+                item.mesh.position.copy(pos);
+            });
+
+            modelState.guardrail.forEach(item => {
+                const s = item.baseScale.clone();
+                const widthS = base.baffleWidth ? (p.baffleWidth / base.baffleWidth) : 1;
+                const thickS = base.baffleThickness ? (p.baffleThickness / base.baffleThickness) : 1;
+                s[modelState.axes.widthAxis] *= widthS;
+                s[modelState.axes.upAxis] *= thickS;
+                item.mesh.scale.copy(s);
+                const correction = getScaleCorrection(item, s.clone().divide(item.baseScale));
+                const pos = item.basePos.clone().add(correction);
+                pos[modelState.axes.upAxis] += heightDelta;
+                if (item.baseCenter[modelState.axes.lengthAxis] < modelState.axes.center[modelState.axes.lengthAxis]) {
+                    pos[modelState.axes.lengthAxis] += frontOffset;
+                } else if (item.baseCenter[modelState.axes.lengthAxis] > modelState.axes.center[modelState.axes.lengthAxis]) {
+                    pos[modelState.axes.lengthAxis] += rearOffset;
+                }
+                item.mesh.position.copy(pos);
+            });
+
+            const moveLength = (item, offset) => {
+                const pos = item.basePos.clone();
+                pos[modelState.axes.lengthAxis] += offset;
+                pos[modelState.axes.upAxis] += heightDelta;
+                item.mesh.position.copy(pos);
+            };
+            modelState.frontGroup.forEach(item => moveLength(item, frontOffset));
+            modelState.rearGroup.forEach(item => moveLength(item, rearOffset));
+
+            const wheelbaseDelta = (p.wheelbase - base.wheelbase) * unit.track;
+            const widthOffset = wheelbaseDelta / 2;
+            const offsetDelta = (p.wheelOffset - base.wheelOffset) * unit.track;
+
+            modelState.fixedParts.forEach(item => {
+                const pos = item.basePos.clone();
+                if (item.isFront) {
+                    pos[modelState.axes.lengthAxis] += frontOffset;
+                } else if (item.isRear) {
+                    pos[modelState.axes.lengthAxis] += rearOffset;
+                }
+                pos[modelState.axes.upAxis] = item.basePos[modelState.axes.upAxis] + heightDelta;
+                item.mesh.position.copy(pos);
+            });
+
+            modelState.stretchWidthParts.forEach(item => {
+                const s = item.baseScale.clone();
+                s[modelState.axes.widthAxis] *= (base.wheelbase ? (p.wheelbase / base.wheelbase) : 1);
+                item.mesh.scale.copy(s);
+                const correction = getScaleCorrection(item, s.clone().divide(item.baseScale));
+                const pos = item.basePos.clone().add(correction);
+                if (item.isFront) {
+                    pos[modelState.axes.lengthAxis] += frontOffset;
+                } else if (item.isRear) {
+                    pos[modelState.axes.lengthAxis] += rearOffset;
+                }
+                pos[modelState.axes.upAxis] = item.basePos[modelState.axes.upAxis] + heightDelta;
+                item.mesh.position.copy(pos);
+            });
+
+            modelState.wheelParts.forEach(item => {
+                const pos = item.basePos.clone();
+                pos[modelState.axes.widthAxis] += item.side * widthOffset;
+                if (item.isFront) {
+                    pos[modelState.axes.lengthAxis] += frontOffset;
+                } else if (item.isRear) {
+                    pos[modelState.axes.lengthAxis] += rearOffset;
+                }
+                pos[modelState.axes.upAxis] = item.basePos[modelState.axes.upAxis] + heightDelta;
+                item.mesh.position.copy(pos);
+            });
+
+            const tireWidthScale = base.tireWidth ? (p.tireWidth / base.tireWidth) : 1;
+            const rimDiameterScale = base.rimDiameter ? (p.rimDiameter / base.rimDiameter) : 1;
+
+            const getWheelScaleCorrection = (node, diameterS, widthS) => {
+                const rel = node.baseCenter.clone().sub(node.basePos);
+                const scaledRel = rel.clone();
+                scaledRel[modelState.axes.widthAxis] *= widthS;
+                scaledRel[modelState.axes.lengthAxis] *= diameterS;
+                scaledRel[modelState.axes.upAxis] *= diameterS;
+                return rel.sub(scaledRel);
+            };
+
+            const scaleWheel = (node, diameterS, widthS) => {
+                const s = node.baseScale.clone();
+                s[modelState.axes.widthAxis] *= widthS;
+                s[modelState.axes.lengthAxis] *= diameterS;
+                s[modelState.axes.upAxis] *= diameterS;
+                node.mesh.scale.copy(s);
+            };
+
+            const applyWheelTransform = (node, item, delta, includeHeight, correction) => {
+                const pos = node.basePos.clone();
+                pos[modelState.axes.widthAxis] += item.side * delta;
+                if (item.isFront) {
+                    pos[modelState.axes.lengthAxis] += frontOffset;
+                } else if (item.isRear) {
+                    pos[modelState.axes.lengthAxis] += rearOffset;
+                }
+                if (includeHeight) {
+                    pos[modelState.axes.upAxis] = node.basePos[modelState.axes.upAxis] + heightDelta;
+                }
+                if (correction) pos.add(correction);
+                node.mesh.position.copy(pos);
+            };
+
+            modelState.tireParts.forEach(item => {
+                scaleWheel(item, rimDiameterScale, tireWidthScale);
+                const correction = getWheelScaleCorrection(item, rimDiameterScale, tireWidthScale);
+                applyWheelTransform(item, item, widthOffset + offsetDelta, false, correction);
+                if (item.isFront) item.mesh.rotation[modelState.axes.upAxis] = item.baseRot[modelState.axes.upAxis];
+            });
+            modelState.rimParts.forEach(item => {
+                scaleWheel(item, rimDiameterScale, tireWidthScale);
+                const correction = getWheelScaleCorrection(item, rimDiameterScale, tireWidthScale);
+                applyWheelTransform(item, item, widthOffset + offsetDelta, false, correction);
+                if (item.isFront) item.mesh.rotation[modelState.axes.upAxis] = item.baseRot[modelState.axes.upAxis];
+            });
+        };
+
+        const updateGeometry = () => {
+            if (modelLoaded) return;
+
+            const loader = new THREE.GLTFLoader();
+            loader.load('./5glb.glb', (gltf) => {
+                // Clear old
+                while (vehicleGroup.children.length > 0) {
+                    const obj = vehicleGroup.children[0];
+                    if (obj.geometry) obj.geometry.dispose();
+                    if (obj.material) {
+                        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+                        else obj.material.dispose();
+                    }
+                    vehicleGroup.remove(obj);
+                }
+
+                const root = gltf.scene;
+                root.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                const applyModelColors = (rootObj, mode = 'structure') => {
+                    const colorFor = (name) => {
+                        if (name.includes('tire')) return 0x1f2937;
+                        if (name.includes('rim') || name.includes('wheel hub') || name.includes('hub')) return 0xd1d5db;
+                        if (name.includes('motor') || name.includes('gearbox')) return 0xf59e0b;
+                        if (name.includes('differential')) return 0xef4444;
+                        if (name.includes('suspension') || name.includes('shock') || name.includes('steering_knuckle')) return 0x60a5fa;
+                        if (name.includes('guardrail') || name.includes('anti-collision')) return 0x93c5fd;
+                        if (name.includes('chassis')) return 0x7aa2ff;
+                        return 0x94a3b8;
+                    };
+                    const powerGlow = (name) => (
+                        name.includes('motor') ||
+                        name.includes('gearbox') ||
+                        name.includes('drive_shaft') ||
+                        name.includes('differential')
+                    );
+                    rootObj.traverse((child) => {
+                        if (!child.isMesh || !child.material) return;
+                        const name = normalize(child.name);
+                        let hex = colorFor(name);
+                        if (mode === 'power') {
+                            hex = powerGlow(name) ? 0xf59e0b : 0x334155;
+                        }
+                        const applyMat = (mat) => {
+                            if (mat.map) {
+                                mat.color.setHex(0xffffff);
+                            } else {
+                                mat.color.setHex(hex);
+                            }
+                            if (mat.emissive) mat.emissive.setHex(mode === 'power' && powerGlow(name) ? 0x552200 : 0x000000);
+                            if (mat.roughness !== undefined) mat.roughness = 0.6;
+                            if (mat.metalness !== undefined) mat.metalness = 0.1;
+                            mat.needsUpdate = true;
+                        };
+                        child.userData._baseColor = hex;
+                        if (Array.isArray(child.material)) child.material.forEach(applyMat);
+                        else applyMat(child.material);
+                    });
+                };
+
+                // Rotate model: wheels on XZ plane, front toward -X
+                root.rotation.set(0, -Math.PI / 2, 0);
+
+                applyModelColors(root);
+                if (stressEnabled.value) applyStressOverlay(true);
+                const setViewMode = (mode) => {
+                    applyModelColors(modelRoot || root, mode);
+                };
+                window.setViewMode = setViewMode;
+                rebuildPartsIndex(root);
+
+                // Debug: print all node names
+                const nameCounts = new Map();
+                root.traverse((child) => {
+                    const name = (child.name || '').trim();
+                    if (!name) return;
+                    const key = `${child.type}: ${name}`;
+                    nameCounts.set(key, (nameCounts.get(key) || 0) + 1);
+                });
+                const nameList = Array.from(nameCounts.entries())
+                    .sort((a, b) => a[0].localeCompare(b[0]))
+                    .map(([name, count]) => `${name} (x${count})`);
+                console.log('GLTF nodes:', nameList);
+
+                // Center model and fit camera
+                const box = new THREE.Box3().setFromObject(root);
+                const size = new THREE.Vector3();
+                const center = new THREE.Vector3();
+                box.getSize(size);
+                box.getCenter(center);
+                root.position.sub(center);
+
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const targetSize = 4;
+                const scale = maxDim > 0 ? (targetSize / maxDim) : 1;
+                root.scale.set(scale, scale, scale);
+
+                // Recompute after scaling to fit camera precisely
+                const scaledBox = new THREE.Box3().setFromObject(root);
+                const scaledSize = new THREE.Vector3();
+                const scaledCenter = new THREE.Vector3();
+                scaledBox.getSize(scaledSize);
+                scaledBox.getCenter(scaledCenter);
+                root.position.sub(scaledCenter);
+
+                const scaledMax = Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
+                const fov = THREE.MathUtils.degToRad(camera.fov);
+                const fitDist = scaledMax / (2 * Math.tan(fov / 2));
+
+                camera.position.set(0, scaledMax * 0.6, fitDist * 1.6);
+                camera.near = Math.max(0.1, scaledMax / 1000);
+                camera.far = Math.max(50, fitDist * 8);
+                camera.updateProjectionMatrix();
+                camera.lookAt(0, 0, 0);
+
+                vehicleGroup.add(root);
+                modelRoot = root;
+                root.updateMatrixWorld(true);
+                modelState = buildModelState(root);
+                updateModelTransforms();
+                modelLoaded = true;
+            }, undefined, (err) => {
+                console.error('Failed to load GLTF model:', err);
+            });
+        };
+
+        const addToGroup = (mesh) => {
+            vehicleGroup.add(mesh);
+            // register for highlighting
+            if(mesh.name) {
+                if(!partsMap[mesh.name]) partsMap[mesh.name] = [];
+                partsMap[mesh.name].push(mesh);
+            }
+        };
+
+        // --- Interaction Logic ---
+        const highlightPart = (partName, paramObj) => {
+            activeHoverParam.value = paramObj.key;
+
+            const keywords = (paramObj.targetKeywords && paramObj.targetKeywords.length)
+                ? paramObj.targetKeywords.map(normalize)
+                : (partName ? [normalize(partName)] : []);
+            if (!keywords.length) return;
+
+            const matches = partsIndex.filter(m => {
+                const n = normalize(m.name);
+                return keywords.some(k => n.includes(k));
+            });
+            matches.forEach(m => {
+                if(!m.userData.origHex) m.userData.origHex = m.material.color.getHex();
+                if(!m.userData.origEmissive) m.userData.origEmissive = m.material.emissive ? m.material.emissive.getHex() : 0;
+                m.material.color.setHex(0xf59e0b);
+                if(m.material.emissive) m.material.emissive.setHex(0x553300);
+            });
+        };
+
+        const clearHighlight = () => {
+            activeHoverParam.value = null;
+            partsIndex.forEach(m => {
+                if(m.userData.origHex !== undefined) {
+                    m.material.color.setHex(m.userData.origHex);
+                    if(m.material.emissive) m.material.emissive.setHex(m.userData.origEmissive);
+                }
+            });
+        };
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+
+        // --- Utils ---
+        const handleResize = () => {
+            const c = document.getElementById('canvas-container');
+            if(c && camera && renderer) {
+                camera.aspect = c.clientWidth / c.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(c.clientWidth, c.clientHeight);
+            }
+        };
+
+        const setupControls = (dom) => {
+            // Simplified Orbit Logic (Rotation + Pan + Zoom)
+            let isDown = false, isPan = false;
+            let startX, startY;
+            const sensitivity = 0.005;
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            dom.addEventListener('mousedown', e => {
+                isDown = true;
+                isPan = e.button === 2; // Right click
+                startX = e.clientX; startY = e.clientY;
+            });
+            dom.addEventListener('contextmenu', e => e.preventDefault()); // Block menu
+            window.addEventListener('mouseup', () => isDown = false);
+            
+            window.addEventListener('mousemove', e => {
+                if(!isDown) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (isPan) {
+                    // Pan logic (Move camera position along local axis)
+                    const vec = new THREE.Vector3(-dx * 0.01, dy * 0.01, 0);
+                    vec.applyQuaternion(camera.quaternion);
+                    camera.position.add(vec);
+                } else {
+                    // Rotate logic (Orbit around 0,0,0)
+                    const radius = camera.position.length();
+                    let theta = Math.atan2(camera.position.x, camera.position.z);
+                    let phi = Math.acos(camera.position.y / radius);
+
+                    theta -= dx * sensitivity;
+                    phi -= dy * sensitivity;
+                    phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
+
+                    camera.position.x = radius * Math.sin(phi) * Math.sin(theta);
+                    camera.position.y = radius * Math.cos(phi);
+                    camera.position.z = radius * Math.sin(phi) * Math.cos(theta);
+                    camera.lookAt(0,0,0);
+                }
+                startX = e.clientX; startY = e.clientY;
+            });
+
+            dom.addEventListener('wheel', e => {
+                e.preventDefault();
+                const zoomSpeed = 0.05;
+                const dir = new THREE.Vector3();
+                camera.getWorldDirection(dir);
+                const dist = camera.position.length();
+                
+                if (e.deltaY < 0 && dist > 2) camera.position.addScaledVector(dir, 1);
+                if (e.deltaY > 0 && dist < 20) camera.position.addScaledVector(dir, -1);
+            }, { passive: false });
+
+            dom.addEventListener('mousemove', e => {
+                if (isDown || !stressEnabled.value || !modelRoot) {
+                    if (stressHover.value) stressHover.value = null;
+                    return;
+                }
+                const rect = dom.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const hits = raycaster.intersectObjects(partsIndex, true);
+                if (hits.length) {
+                    const hit = hits[0].object;
+                    const value = getStressValueForMesh(hit);
+                    if (value !== null) {
+                        stressHover.value = {
+                            label: getStressLabelForMesh(hit),
+                            value,
+                            x: e.clientX - rect.left + 12,
+                            y: e.clientY - rect.top + 12
+                        };
+                        return;
+                    }
+                }
+                stressHover.value = null;
+            });
+        };
+
+        // AI Logic (Placeholder for demo)
+        const userInput = ref('');
+        const chatHistory = ref([]);
+        const sendMessage = async () => {
+            const msg = userInput.value.trim();
+            if(!msg) return;
+            chatHistory.value.push({ role: 'user', content: msg });
+            userInput.value = '';
+            try {
+                const resp = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: msg,
+                        params: { ...params },
+                        history: chatHistory.value.slice(-6)
+                    })
+                });
+                if(!resp.ok) throw new Error(await resp.text());
+                const data = await resp.json();
+                chatHistory.value.push({ role: 'ai', content: data.reply || '未获取到有效回复' });
+            } catch (err) {
+                chatHistory.value.push({ role: 'ai', content: `请求失败：${err.message || err}` });
+            }
+        };
+
+        const translateMetric = (k) => ({ payload:'载货能力', range:'续航里程', torque:'爬坡扭矩', stability:'稳定性' }[k] || k);
+
+        const clampChassisHeight = () => {
+            const bounds = getChassisHeightBounds(params.tireOuterDiameter);
+            const next = Math.min(bounds.max, Math.max(bounds.min, params.chassisHeight));
+            if (next !== params.chassisHeight) {
+                suppressHistory = true;
+                params.chassisHeight = Number(next.toFixed(3));
+                suppressHistory = false;
+            }
+        };
+
+        watch(() => [params.tireOuterDiameter, params.chassisHeight], clampChassisHeight);
+
+        watch(params, () => {
+            if (modelLoaded) updateModelTransforms();
+            else updateGeometry();
+            if (stressEnabled.value) applyStressOverlay(true);
+            pushHistory(); // For undo
+        }, { deep: true });
+
+        onMounted(() => {
+            initThree();
+        });
+
+        return {
+            steps, activeGroup, advancedOpen, parameterGroups, params, metrics,
+            formatParamValue, toggleMultiParam,
+            activeHoverParam, highlightPart, clearHighlight,
+            history, undo, redo, resetParams, exportModel, exportDrawing,
+            redoStack, recommendations, formatRecommended, fetchRecommendations, recLoading, recError, saveConfig,
+            auditLoading, auditError, showAudit, auditResult, auditParams,
+            stressEnabled, showViewMenu, stressStats, stressHover, toggleStressAnalysis, setCameraView, toggleViewMenu,
+            userInput, chatHistory, sendMessage, translateMetric, onParamChange, setViewMode,
+            showIntro, introInput, introLoading, introError, introStatus, generateIntroParams, closeIntro,
+            viewMode
+        };
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
