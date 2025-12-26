@@ -13,6 +13,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/', (_req, res) => {
+  res.status(200).send('AUTO-GEN API running');
+});
+
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 const callDeepSeek = (payload) =>
   new Promise((resolve, reject) => {
     const apiKey = process.env.SILICONFLOW_API_KEY;
