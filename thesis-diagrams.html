@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProtoCart Lab | 论文插图</title>
+  <style>
+    :root {
+      --ink: #1b2433;
+      --muted: #5b667a;
+      --line: #98a2b3;
+      --accent: #3b82f6;
+      --accent-soft: #e8f0ff;
+      --ai: #0ea5e9;
+      --bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      padding: 20px 48px 6px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .wrap {
+      padding: 14px 48px 40px;
+      display: grid;
+      gap: 28px;
+    }
+    .figure {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 12px 16px;
+    }
+    .fig-title {
+      margin: 4px 6px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ProtoCart Lab 论文插图</h1>
+    <p>建议直接右键保存 SVG 或截图导出为图片（白底、适合论文排版）。</p>
+  </header>
+
+  <div class="wrap">
+    <!-- 图1 信息架构图 -->
+    <section class="figure">
+      <div class="fig-title">图 1 平台信息架构图</div>
+      <svg viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .box { fill: #ffffff; stroke: #6b7280; stroke-width: 1.2; rx: 10; }
+            .box-core { fill: #e8f0ff; stroke: #6b7280; stroke-width: 1.4; rx: 10; }
+            .box-ai { fill: #e0f2fe; stroke: #6b7280; stroke-width: 1.2; rx: 10; }
+            .t { fill: #1b2433; font-size: 14px; font-weight: 600; }
+            .s { fill: #5b667a; font-size: 12px; }
+            .line { stroke: #6b7280; stroke-width: 1.2; }
+          </style>
+        </defs>
+
+        <!-- Root -->
+        <rect class="box-core" x="410" y="20" width="380" height="52" />
+        <text class="t" x="600" y="52" text-anchor="middle">AI驱动的模型小车参数化设计与制造平台</text>
+
+        <!-- Level 1 -->
+        <rect class="box" x="40" y="110" width="200" height="50" />
+        <text class="t" x="140" y="142" text-anchor="middle">首页</text>
+
+        <rect class="box" x="270" y="110" width="200" height="50" />
+        <text class="t" x="370" y="142" text-anchor="middle">学习文档</text>
+
+        <rect class="box" x="500" y="110" width="200" height="50" />
+        <text class="t" x="600" y="142" text-anchor="middle">我的</text>
+
+        <rect class="box-core" x="730" y="110" width="200" height="50" />
+        <text class="t" x="830" y="142" text-anchor="middle">底盘设计</text>
+
+        <rect class="box-core" x="960" y="110" width="200" height="50" />
+        <text class="t" x="1060" y="142" text-anchor="middle">外壳设计</text>
+
+        <!-- Lines from root -->
+        <line class="line" x1="600" y1="72" x2="140" y2="110" />
+        <line class="line" x1="600" y1="72" x2="370" y2="110" />
+        <line class="line" x1="600" y1="72" x2="600" y2="110" />
+        <line class="line" x1="600" y1="72" x2="830" y2="110" />
+        <line class="line" x1="600" y1="72" x2="1060" y2="110" />
+
+        <!-- 首页子项 -->
+        <rect class="box" x="20" y="190" width="220" height="42" />
+        <text class="s" x="130" y="216" text-anchor="middle">平台介绍 / 使用流程 / 平台特点 / 快速入口</text>
+        <line class="line" x1="140" y1="160" x2="130" y2="190" />
+
+        <!-- 学习文档子项 -->
+        <rect class="box" x="250" y="190" width="240" height="42" />
+        <text class="s" x="370" y="216" text-anchor="middle">参数知识 / 结构说明 / 设计案例 / 使用指南</text>
+        <line class="line" x1="370" y1="160" x2="370" y2="190" />
+
+        <!-- 我的子项 -->
+        <rect class="box" x="480" y="190" width="240" height="42" />
+        <text class="s" x="600" y="216" text-anchor="middle">设计记录 / 保存方案 / 导出记录 / 个人信息</text>
+        <line class="line" x1="600" y1="160" x2="600" y2="190" />
+
+        <!-- 底盘设计子项 -->
+        <rect class="box" x="690" y="190" width="280" height="200" />
+        <text class="t" x="830" y="214" text-anchor="middle">底盘设计模块</text>
+        <text class="s" x="830" y="240" text-anchor="middle">需求输入 / AI参数预设</text>
+        <text class="s" x="830" y="262" text-anchor="middle">车身结构 / 轮胎与悬挂</text>
+        <text class="s" x="830" y="284" text-anchor="middle">动力系统 / 附属载荷</text>
+        <text class="s" x="830" y="306" text-anchor="middle">三维预览 / 实时性能模拟</text>
+        <text class="s" x="830" y="328" text-anchor="middle">AI助手建议</text>
+        <line class="line" x1="830" y1="160" x2="830" y2="190" />
+
+        <!-- 外壳设计子项 -->
+        <rect class="box" x="960" y="190" width="220" height="220" />
+        <text class="t" x="1070" y="214" text-anchor="middle">外壳设计模块</text>
+        <text class="s" x="1070" y="240" text-anchor="middle">外壳设计目标 / 尺寸继承</text>
+        <text class="s" x="1070" y="262" text-anchor="middle">外壳描述输入 / 参考图与提示词</text>
+        <text class="s" x="1070" y="284" text-anchor="middle">外壳草图生成 / 外壳模型生成</text>
+        <text class="s" x="1070" y="306" text-anchor="middle">结果预览 / 导出输出</text>
+        <line class="line" x1="1060" y1="160" x2="1070" y2="190" />
+      </svg>
+    </section>
+
+    <!-- 图2 用户流程图 -->
+    <section class="figure">
+      <div class="fig-title">图 2 平台用户使用流程图</div>
+      <svg viewBox="0 0 1200 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .lane { fill: #ffffff; stroke: #6b7280; stroke-width: 1.2; rx: 10; }
+            .box { fill: #ffffff; stroke: #6b7280; stroke-width: 1.2; rx: 8; }
+            .box-ai { fill: #e0f2fe; stroke: #6b7280; stroke-width: 1.2; rx: 8; }
+            .t { fill: #1b2433; font-size: 13px; font-weight: 600; }
+            .s { fill: #5b667a; font-size: 11px; }
+            .line { stroke: #6b7280; stroke-width: 1.2; marker-end: url(#arrow); }
+          </style>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 10 3, 0 6" fill="#6b7280" />
+          </marker>
+        </defs>
+
+        <!-- Lanes -->
+        <rect class="lane" x="30" y="40" width="1140" height="120" />
+        <text class="t" x="50" y="70">用户操作</text>
+        <rect class="lane" x="30" y="190" width="1140" height="120" />
+        <text class="t" x="50" y="220">平台反馈</text>
+        <rect class="lane" x="30" y="340" width="1140" height="120" />
+        <text class="t" x="50" y="370">AI/系统处理</text>
+
+        <!-- User steps -->
+        <rect class="box" x="120" y="70" width="150" height="50" />
+        <text class="t" x="195" y="98" text-anchor="middle">进入平台</text>
+        <rect class="box" x="300" y="70" width="170" height="50" />
+        <text class="t" x="385" y="98" text-anchor="middle">输入设计需求</text>
+        <rect class="box" x="510" y="70" width="170" height="50" />
+        <text class="t" x="595" y="98" text-anchor="middle">调整底盘参数</text>
+        <rect class="box" x="720" y="70" width="170" height="50" />
+        <text class="t" x="805" y="98" text-anchor="middle">进入外壳设计</text>
+        <rect class="box" x="930" y="70" width="170" height="50" />
+        <text class="t" x="1015" y="98" text-anchor="middle">导出与保存</text>
+
+        <!-- Platform feedback -->
+        <rect class="box" x="120" y="220" width="170" height="50" />
+        <text class="t" x="205" y="248" text-anchor="middle">平台介绍与引导</text>
+        <rect class="box" x="320" y="220" width="170" height="50" />
+        <text class="t" x="405" y="248" text-anchor="middle">3D预览与性能反馈</text>
+        <rect class="box" x="540" y="220" width="170" height="50" />
+        <text class="t" x="625" y="248" text-anchor="middle">外壳预览与合体展示</text>
+        <rect class="box" x="760" y="220" width="170" height="50" />
+        <text class="t" x="845" y="248" text-anchor="middle">导出模型/工图</text>
+
+        <!-- AI/System -->
+        <rect class="box-ai" x="300" y="370" width="170" height="50" />
+        <text class="t" x="385" y="398" text-anchor="middle">AI参数预设</text>
+        <rect class="box-ai" x="720" y="370" width="170" height="50" />
+        <text class="t" x="805" y="398" text-anchor="middle">外壳草图/模型生成</text>
+
+        <!-- Lines -->
+        <line class="line" x1="270" y1="95" x2="300" y2="95" />
+        <line class="line" x1="470" y1="95" x2="510" y2="95" />
+        <line class="line" x1="680" y1="95" x2="720" y2="95" />
+        <line class="line" x1="890" y1="95" x2="930" y2="95" />
+
+        <line class="line" x1="385" y1="120" x2="385" y2="220" />
+        <line class="line" x1="595" y1="120" x2="405" y2="220" />
+        <line class="line" x1="805" y1="120" x2="625" y2="220" />
+        <line class="line" x1="1015" y1="120" x2="845" y2="220" />
+
+        <line class="line" x1="385" y1="270" x2="385" y2="370" />
+        <line class="line" x1="805" y1="270" x2="805" y2="370" />
+
+        <path d="M 625 220 C 560 240, 560 140, 510 140" fill="none" stroke="#6b7280" stroke-width="1.2" marker-end="url(#arrow)" />
+        <text class="s" x="520" y="185">迭代调整</text>
+      </svg>
+    </section>
+
+    <!-- 图3 技术架构图 -->
+    <section class="figure">
+      <div class="fig-title">图 3 平台技术架构图</div>
+      <svg viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .layer { fill: #ffffff; stroke: #6b7280; stroke-width: 1.2; rx: 10; }
+            .box { fill: #ffffff; stroke: #6b7280; stroke-width: 1.2; rx: 8; }
+            .box-core { fill: #e8f0ff; stroke: #6b7280; stroke-width: 1.2; rx: 8; }
+            .box-ai { fill: #e0f2fe; stroke: #6b7280; stroke-width: 1.2; rx: 8; }
+            .t { fill: #1b2433; font-size: 13px; font-weight: 600; }
+            .s { fill: #5b667a; font-size: 11px; }
+            .line { stroke: #6b7280; stroke-width: 1.2; marker-end: url(#arrow2); }
+          </style>
+          <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 10 3, 0 6" fill="#6b7280" />
+          </marker>
+        </defs>
+
+        <!-- Layer 1 -->
+        <rect class="layer" x="40" y="30" width="1120" height="110" />
+        <text class="t" x="60" y="60">用户交互层</text>
+        <rect class="box" x="200" y="60" width="200" height="60" />
+        <text class="t" x="300" y="92" text-anchor="middle">用户界面</text>
+        <rect class="box" x="430" y="60" width="200" height="60" />
+        <text class="t" x="530" y="92" text-anchor="middle">参数输入</text>
+        <rect class="box" x="660" y="60" width="200" height="60" />
+        <text class="t" x="760" y="92" text-anchor="middle">结果预览</text>
+        <rect class="box" x="890" y="60" width="200" height="60" />
+        <text class="t" x="990" y="92" text-anchor="middle">交互控制</text>
+
+        <!-- Layer 2 -->
+        <rect class="layer" x="40" y="170" width="1120" height="140" />
+        <text class="t" x="60" y="200">功能逻辑层</text>
+        <rect class="box-core" x="120" y="210" width="190" height="70" />
+        <text class="t" x="215" y="246" text-anchor="middle">需求解析</text>
+        <rect class="box-ai" x="330" y="210" width="190" height="70" />
+        <text class="t" x="425" y="246" text-anchor="middle">AI参数预设</text>
+        <rect class="box-core" x="540" y="210" width="190" height="70" />
+        <text class="t" x="635" y="246" text-anchor="middle">底盘参数化设计</text>
+        <rect class="box-core" x="750" y="210" width="190" height="70" />
+        <text class="t" x="845" y="246" text-anchor="middle">性能模拟与反馈</text>
+        <rect class="box-ai" x="960" y="210" width="190" height="70" />
+        <text class="t" x="1055" y="246" text-anchor="middle">外壳生成</text>
+
+        <rect class="box" x="330" y="290" width="190" height="60" />
+        <text class="t" x="425" y="322" text-anchor="middle">文件导出</text>
+
+        <!-- Layer 3 -->
+        <rect class="layer" x="40" y="340" width="1120" height="170" />
+        <text class="t" x="60" y="370">核心能力层</text>
+        <rect class="box" x="120" y="380" width="190" height="70" />
+        <text class="t" x="215" y="415" text-anchor="middle">参数规则库</text>
+        <rect class="box" x="330" y="380" width="190" height="70" />
+        <text class="t" x="425" y="415" text-anchor="middle">底盘几何生成逻辑</text>
+        <rect class="box" x="540" y="380" width="190" height="70" />
+        <text class="t" x="635" y="415" text-anchor="middle">性能评价逻辑</text>
+        <rect class="box" x="750" y="380" width="190" height="70" />
+        <text class="t" x="845" y="415" text-anchor="middle">提示词构建逻辑</text>
+        <rect class="box" x="960" y="380" width="190" height="70" />
+        <text class="t" x="1055" y="415" text-anchor="middle">图像/模型生成处理</text>
+
+        <!-- Layer 4 -->
+        <rect class="layer" x="40" y="540" width="1120" height="140" />
+        <text class="t" x="60" y="570">技术支撑层</text>
+        <rect class="box" x="150" y="580" width="190" height="70" />
+        <text class="t" x="245" y="615" text-anchor="middle">前端界面</text>
+        <text class="s" x="245" y="635" text-anchor="middle">Vue / HTML</text>
+        <rect class="box" x="360" y="580" width="190" height="70" />
+        <text class="t" x="455" y="615" text-anchor="middle">三维可视化</text>
+        <text class="s" x="455" y="635" text-anchor="middle">Three.js</text>
+        <rect class="box" x="570" y="580" width="190" height="70" />
+        <text class="t" x="665" y="615" text-anchor="middle">后端服务</text>
+        <text class="s" x="665" y="635" text-anchor="middle">Node.js / API</text>
+        <rect class="box" x="780" y="580" width="190" height="70" />
+        <text class="t" x="875" y="615" text-anchor="middle">AI接口调用</text>
+        <text class="s" x="875" y="635" text-anchor="middle">DeepSeek / 即梦 / Seed3D</text>
+        <rect class="box" x="990" y="580" width="190" height="70" />
+        <text class="t" x="1085" y="615" text-anchor="middle">数据存储</text>
+        <text class="s" x="1085" y="635" text-anchor="middle">LocalStorage / 文件</text>
+
+        <!-- Lines -->
+        <line class="line" x1="300" y1="140" x2="300" y2="210" />
+        <line class="line" x1="530" y1="140" x2="530" y2="210" />
+        <line class="line" x1="760" y1="140" x2="760" y2="210" />
+        <line class="line" x1="990" y1="140" x2="990" y2="210" />
+
+        <line class="line" x1="425" y1="280" x2="425" y2="380" />
+        <line class="line" x1="635" y1="280" x2="635" y2="380" />
+        <line class="line" x1="845" y1="280" x2="845" y2="380" />
+        <line class="line" x1="1055" y1="280" x2="1055" y2="380" />
+
+        <line class="line" x1="245" y1="650" x2="245" y2="380" />
+        <line class="line" x1="455" y1="650" x2="455" y2="380" />
+        <line class="line" x1="665" y1="650" x2="665" y2="380" />
+        <line class="line" x1="875" y1="650" x2="875" y2="380" />
+      </svg>
+    </section>
+  </div>
+</body>
+</html>

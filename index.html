@@ -3,318 +3,560 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AUTO-GEN Pro | 首页</title>
+  <title>ProtoCart One | AI模型小车配置与制造平台</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: rgba(17, 25, 45, 0.75);
-      --line: rgba(148, 163, 184, 0.2);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --bg: #0b101d;
+      --bg-soft: #0f1626;
+      --panel: rgba(18, 26, 43, 0.85);
+      --panel-strong: rgba(12, 18, 33, 0.95);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #eef4ff;
+      --muted: #98a8c7;
       --accent: #4cc9f0;
-      --accent-2: #f4b740;
+      --accent-2: #3b82f6;
+      --highlight: #f4b740;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
       font-family: "Space Grotesk", sans-serif;
-      background: radial-gradient(1200px 800px at 80% -10%, rgba(76, 201, 240, 0.18), transparent),
-                  radial-gradient(900px 600px at 10% 10%, rgba(244, 183, 64, 0.12), transparent),
-                  var(--bg);
       color: var(--text);
+      background:
+        radial-gradient(900px 600px at 88% -8%, rgba(76, 201, 240, 0.14), transparent 60%),
+        radial-gradient(720px 520px at 10% 6%, rgba(59, 130, 246, 0.14), transparent 58%),
+        linear-gradient(180deg, #0b101d 0%, #0a1322 55%, #0a121e 100%);
     }
+
     .grid-lines {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background-image: linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(circle at 50% 10%, black, transparent 60%);
       z-index: 0;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at 50% 8%, black, transparent 78%);
     }
+
     header {
       position: sticky;
       top: 0;
-      z-index: 10;
-      backdrop-filter: blur(12px);
-      background: rgba(10, 16, 32, 0.7);
+      z-index: 20;
+      background: rgba(8, 16, 29, 0.78);
+      backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--line);
     }
+
     .nav {
+      width: min(1280px, calc(100% - 44px));
+      margin: 0 auto;
+      min-height: 78px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 6vw;
+      gap: 20px;
     }
+
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+      gap: 14px;
+      min-width: 0;
     }
+
     .brand-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
       display: grid;
       place-items: center;
-      background: linear-gradient(135deg, #3b82f6, #22d3ee);
-      color: white;
+      flex: none;
+      color: #fff;
       font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
     }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .nav-links {
       display: flex;
-      gap: 24px;
+      align-items: center;
+      gap: 22px;
       font-size: 14px;
       color: var(--muted);
     }
-    .nav-links a { color: inherit; text-decoration: none; }
-    .nav-links a:hover { color: var(--accent); }
-    .cta {
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #3b82f6, #22d3ee);
-      color: white;
+
+    .nav-links a {
+      color: inherit;
       text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
+      transition: color 0.2s ease;
     }
-    .hero {
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      border-color: transparent;
+      box-shadow: 0 16px 32px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-secondary {
+      background: rgba(18, 28, 49, 0.72);
+    }
+
+    .page {
       position: relative;
       z-index: 1;
-      padding: 80px 6vw 60px;
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 32px;
+    }
+
+    .hero {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .hero-banner {
+      position: relative;
+      min-height: 72vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: #0a0f1c;
+    }
+
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg,
+          rgba(10, 14, 24, 0.85) 0%,
+          rgba(10, 14, 24, 0.68) 35%,
+          rgba(10, 14, 24, 0.32) 55%,
+          rgba(10, 14, 24, 0.05) 72%,
+          rgba(10, 14, 24, 0) 100%);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(1280px, calc(100% - 44px));
+      margin: 0 auto;
+      padding: 120px 0 90px;
+      display: flex;
       align-items: center;
     }
-    .hero h1 {
-      font-size: 40px;
-      line-height: 1.1;
-      margin: 0 0 16px;
+
+    .hero-copy {
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-    .hero p {
-      color: var(--muted);
-      font-size: 16px;
-    }
-    .hero-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-    }
-    .hero-card .tag {
+
+    .eyebrow {
       display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 6px 12px;
       border-radius: 999px;
+      border: 1px solid rgba(76, 201, 240, 0.2);
       background: rgba(76, 201, 240, 0.12);
       color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy h1 {
+      margin: 0;
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      max-width: 520px;
+      font-size: 16px;
+      line-height: 1.85;
+      color: #d6e2f5;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .hero-meta span {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: var(--muted);
       font-size: 12px;
     }
-    .hero-visual {
-      margin-top: 16px;
-      border-radius: 18px;
-      overflow: hidden;
+
+    .hero-caption {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(12, 18, 33, 0.72);
       border: 1px solid rgba(148, 163, 184, 0.2);
-      background: #0f172a;
+      color: #e6f0ff;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      width: fit-content;
     }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 16px;
-    }
-    .stat {
-      border-radius: 14px;
-      padding: 14px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .stat strong { color: var(--text); font-size: 18px; display: block; }
+
     .section {
-      padding: 60px 6vw;
-      position: relative;
-      z-index: 1;
+      width: min(1280px, calc(100% - 44px));
+      margin: 0 auto;
+      padding: 28px 0 8px;
     }
-    .section h2 { margin: 0 0 12px; font-size: 26px; }
-    .section p { color: var(--muted); }
-    .grid {
-      margin-top: 24px;
+
+    .section-head {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .section-cap {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .flow-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
     }
-    .card {
-      background: var(--panel);
-      border-radius: 18px;
+
+    .flow-card {
+      padding: 22px;
+      border-radius: 22px;
       border: 1px solid var(--line);
-      padding: 20px;
-      min-height: 160px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card .icon {
+
+    .flow-step {
       width: 36px;
       height: 36px;
       border-radius: 12px;
       display: grid;
       place-items: center;
-      background: rgba(76, 201, 240, 0.15);
-      color: var(--accent);
-      margin-bottom: 10px;
+      font-weight: 700;
+      color: #0b101d;
+      background: linear-gradient(135deg, var(--accent), var(--highlight));
     }
-    .workflow {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-top: 24px;
+
+    .flow-card h3 {
+      margin: 0;
+      font-size: 20px;
     }
-    .step {
-      border-left: 2px solid rgba(76, 201, 240, 0.6);
-      padding-left: 12px;
+
+    .flow-card p {
+      margin: 0;
       color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
     }
-    .cta-section {
-      margin: 40px 6vw 80px;
-      background: linear-gradient(135deg, rgba(76, 201, 240, 0.14), rgba(244, 183, 64, 0.12));
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+      padding: 22px;
+      border-radius: 22px;
       border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+      background:
+        linear-gradient(180deg, rgba(76, 201, 240, 0.06), rgba(76, 201, 240, 0.02)),
+        var(--panel);
+      box-shadow: var(--shadow);
     }
-    .cta-section h3 { margin: 0; font-size: 22px; }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent 72%);
+    }
+
+    .feature-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      background: rgba(76, 201, 240, 0.12);
+      color: var(--accent);
+      font-size: 20px;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
     footer {
-      padding: 24px 6vw 40px;
+      width: min(1280px, calc(100% - 44px));
+      margin: 20px auto 50px;
+      padding: 18px 0 20px;
       color: var(--muted);
       font-size: 12px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
     }
-    @media (max-width: 960px) {
-      .hero { grid-template-columns: 1fr; }
-      .grid, .workflow { grid-template-columns: 1fr; }
-      .stats { grid-template-columns: 1fr; }
-      .cta-section { flex-direction: column; align-items: flex-start; }
+
+    @media (max-width: 1100px) {
+      .hero-inner {
+        padding: 90px 0 70px;
+      }
+      .flow-grid {
+        grid-template-columns: 1fr;
+      }
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .nav {
+        padding: 14px 0;
+        min-height: auto;
+        flex-wrap: wrap;
+      }
+      .nav-links {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="grid-lines"></div>
+
   <header>
     <div class="nav">
       <div class="brand">
-        <div class="brand-badge">A</div>
-        AUTO-GEN Pro
+        <div class="brand-badge">P</div>
+        <div class="brand-copy">
+          <strong>ProtoCart One</strong>
+          <span>AI模型小车配置与制造平台</span>
+        </div>
       </div>
-      <div class="nav-links">
-        <a href="index.html">首页</a>
+
+      <nav class="nav-links" aria-label="站点导航">
+        <a href="index.html" class="active">首页</a>
         <a href="docs.html">学习文档</a>
         <a href="me.html">我的</a>
-        <a href="1.html">工作台</a>
+        <a href="1.html">底盘设计</a>
+        <a href="shell.html">外壳设计</a>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="btn btn-secondary" href="shell.html">进入外壳设计</a>
+        <a class="btn btn-primary" href="1.html">进入底盘设计</a>
       </div>
-      <a class="cta" href="1.html">进入工作台</a>
     </div>
   </header>
 
-  <section class="hero">
-    <div>
-      <h1>面向非专业用户的车辆参数化设计平台</h1>
-      <p>通过直观的参数面板、3D 可视化和 AI 辅助，让每个用户都能快速完成小车设计与方案验证。</p>
-      <div class="stats">
-        <div class="stat"><strong>60+</strong>参数覆盖设计全流程</div>
-        <div class="stat"><strong>3D</strong>实时模型与受力分析</div>
-        <div class="stat"><strong>AI</strong>智能预填与核验</div>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-banner">
+        <img class="hero-media" src="hero.jpg" alt="模型小车平台主视图">
+        <div class="hero-overlay"></div>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <span class="eyebrow">ProtoCart One</span>
+            <h1>AI驱动的<br>模型小车参数化设计与制造平台</h1>
+            <p>从需求输入到参数配置，再到外壳生成与3D输出，一站式完成原型设计。</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="1.html">进入底盘设计</a>
+              <a class="btn btn-secondary" href="shell.html">进入外壳设计</a>
+            </div>
+            <div class="hero-meta">
+              <span>课程项目</span>
+              <span>FabLab 打印</span>
+              <span>快速原型验证</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="hero-card">
-      <span class="tag">智能参数化</span>
-      <h2>从需求到模型，只需 3 步</h2>
-      <p>描述需求 → AI 预填参数 → 细化调整并导出模型与工图。</p>
-      <div class="hero-visual">
-        <svg viewBox="0 0 600 280" width="100%" height="100%" role="img" aria-label="平台展示">
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#38bdf8" stop-opacity="0.6" />
-              <stop offset="1" stop-color="#f59e0b" stop-opacity="0.2" />
-            </linearGradient>
-          </defs>
-          <rect width="600" height="280" fill="#0f172a" />
-          <rect x="40" y="40" width="220" height="180" rx="18" fill="#111c34" stroke="rgba(148,163,184,0.2)" />
-          <rect x="280" y="60" width="280" height="140" rx="18" fill="url(#g1)" stroke="rgba(148,163,184,0.2)" />
-          <circle cx="140" cy="130" r="50" fill="rgba(76,201,240,0.3)" />
-          <circle cx="420" cy="160" r="36" fill="rgba(244,183,64,0.35)" />
-          <path d="M60 200 L240 200" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
-          <path d="M320 90 L520 90" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
-        </svg>
-      </div>
-      <div class="workflow">
-        <div class="step"><strong>01</strong> 输入需求</div>
-        <div class="step"><strong>02</strong> 智能预设</div>
-        <div class="step"><strong>03</strong> 结构调参</div>
-        <div class="step"><strong>04</strong> 导出成果</div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <h2>平台能力</h2>
-    <p>面向教学、创客、竞赛与项目验证，提供可视化与工程逻辑相结合的设计流程。</p>
-    <div class="grid">
-      <div class="card">
-        <div class="icon">⚙</div>
-        <h3>参数化建模</h3>
-        <p>车身、轮胎、动力与附属组件全流程参数化控制，实时反馈。</p>
+    <section class="section">
+      <div class="section-head">
+        <span class="section-cap">Platform Flow</span>
+        <h2>平台使用流程</h2>
+        <p>三步完成：需求 → 参数 → 输出</p>
       </div>
-      <div class="card">
-        <div class="icon">🧩</div>
-        <h3>模型响应</h3>
-        <p>参数驱动结构变化，模型实时响应，降低试错成本。</p>
-      </div>
-      <div class="card">
-        <div class="icon">✨</div>
-        <h3>AI 辅助决策</h3>
-        <p>基于需求智能推荐参数，并提供合理性核验。</p>
-      </div>
-    </div>
-  </section>
 
-  <section class="section">
-    <h2>适用场景</h2>
-    <div class="grid">
-      <div class="card">
-        <div class="icon">🎓</div>
-        <h3>教学与课程</h3>
-        <p>帮助学生理解车辆结构与工程参数之间的关系。</p>
+      <div class="flow-grid">
+        <article class="flow-card">
+          <div class="flow-step">01</div>
+          <h3>输入需求</h3>
+          <p>描述用途、载重、续航与场景，明确设计目标。</p>
+        </article>
+        <article class="flow-card">
+          <div class="flow-step">02</div>
+          <h3>参数配置</h3>
+          <p>AI 预设并支持手动精调底盘参数，快速成型。</p>
+        </article>
+        <article class="flow-card">
+          <div class="flow-step">03</div>
+          <h3>外壳生成</h3>
+          <p>生成草图与 3D 外壳并导出，进入制造或展示。</p>
+        </article>
       </div>
-      <div class="card">
-        <div class="icon">🛠</div>
-        <h3>创客与实验</h3>
-        <p>快速构建可行方案，缩短验证与迭代周期。</p>
-      </div>
-      <div class="card">
-        <div class="icon">🏁</div>
-        <h3>竞赛与项目</h3>
-        <p>基于性能指标调整参数，形成更优设计方案。</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="cta-section">
-    <div>
-      <h3>开始你的参数化小车设计</h3>
-      <p>进入工作台，体验 AI 驱动的专业设计流程。</p>
-    </div>
-    <a class="cta" href="1.html">立即开始</a>
-  </section>
+    <section class="section">
+      <div class="section-head">
+        <span class="section-cap">Key Benefits</span>
+        <h2>平台特点</h2>
+        <p>参数化驱动设计，AI 与可视化协同，直达制造环节。</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">◎</div>
+          <h3>参数化驱动</h3>
+          <p>所有结构尺寸由参数控制，快速迭代不同方案。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">✦</div>
+          <h3>AI辅助设计</h3>
+          <p>对话建议 + 智能核验 + 自动推荐，降低门槛。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">◈</div>
+          <h3>可视化验证</h3>
+          <p>实时三维预览与结构高亮，快速判断合理性。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">⬡</div>
+          <h3>制造就绪</h3>
+          <p>支持导出模型与工图，面向 3D 打印与实验验证。</p>
+        </article>
+      </div>
+    </section>
+  </main>
 
   <footer>
-    AUTO-GEN Pro © 2025 · 参数化设计平台
+    <span>ProtoCart One · AI模型小车配置与制造平台</span>
+    <span>Parameter Configuration · Shell Generation · FabLab Output</span>
   </footer>
 </body>
 </html>

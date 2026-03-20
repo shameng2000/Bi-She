@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -161,7 +161,8 @@
                 <a href="index.html" class="hover:text-cyan-300 transition">首页</a>
                 <a href="docs.html" class="hover:text-cyan-300 transition">学习文档</a>
                 <a href="me.html" class="hover:text-cyan-300 transition">我的</a>
-                <a href="1.html" class="text-cyan-300">工作台</a>
+                <a href="1.html" class="text-cyan-300">底盘设计</a>
+                <a href="shell.html" class="hover:text-cyan-300 transition">外壳设计</a>
             </nav>
             <button @click="exportModel"
                     class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white backdrop-blur border border-blue-500/60 text-xs flex items-center gap-2 transition shadow-lg shadow-blue-900/40">
@@ -170,6 +171,10 @@
             <button @click="exportDrawing"
                     class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white backdrop-blur border border-emerald-500/60 text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-900/40">
                 <span class="material-icons-round text-sm">image</span> 导出工图
+            </button>
+            <button @click="goShell"
+                    class="px-3 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white backdrop-blur border border-cyan-500/60 text-xs flex items-center gap-2 transition shadow-lg shadow-cyan-900/40">
+                <span class="material-icons-round text-sm">open_in_new</span> 进入外壳设计
             </button>
         </div>
     </header>
@@ -200,6 +205,7 @@
                         <div class="text-cyan-300 font-bold mb-1">3 继续微调</div>
                         <div>你可以在左侧面板进一步调整。</div>
                     </div>
+
                 </div>
 
                 <div class="mt-4">
@@ -289,7 +295,9 @@
         
         <!-- LEFT: Design Guide & Parameters -->
         <div class="w-[380px] flex flex-col glass-panel border-r border-white/5 z-20 h-full">
+            <!-- Shell Entry -->
             
+            <template v-if="activeModule === 'chassis'">
             <!-- Step Indicator -->
             <div class="p-4 border-b border-white/5 bg-slate-800/50">
                 <div class="flex items-center gap-2 mb-2">
@@ -472,6 +480,9 @@
                     </div>
                 </div>
                 </div>
+            </div>
+            </template>
+            
         </div>
 
         <!-- CENTER: 3D Viewport -->
@@ -505,16 +516,6 @@
                             </div>
                         </div>
                     </div>
-                    <label class="flex items-center gap-2 text-xs text-slate-200 select-none cursor-pointer">
-                        <span class="material-icons-round control-icon">insights</span>
-                        <span class="font-medium">受力分析</span>
-                        <span class="relative inline-flex h-5 w-10 items-center rounded-full transition"
-                              :class="stressEnabled ? 'bg-rose-500/80' : 'bg-slate-600/80'">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition"
-                                  :class="stressEnabled ? 'translate-x-5' : 'translate-x-1'"></span>
-                        </span>
-                        <input type="checkbox" class="hidden" v-model="stressEnabled" @change="toggleStressAnalysis">
-                    </label>
                 </div>
             </div>
 
@@ -545,34 +546,6 @@
                 AI核验失败: {{ auditError }}
             </div>
 
-            <div v-if="stressEnabled" class="absolute top-16 left-6 w-[280px] rounded-xl border border-rose-400/20 bg-slate-900/80 backdrop-blur p-3 text-xs text-slate-200 shadow-lg">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2 text-rose-300">
-                        <span class="material-icons-round text-sm">insights</span>
-                        <span class="font-semibold">受力分析</span>
-                    </div>
-                    <button @click="toggleStressAnalysis" class="text-slate-400 hover:text-slate-200">关闭</button>
-                </div>
-                <div class="space-y-1 text-[11px] text-slate-300">
-                    <div class="flex justify-between"><span>前轴载荷</span><span class="text-emerald-300">{{ stressStats.front }}%</span></div>
-                    <div class="flex justify-between"><span>后轴载荷</span><span class="text-emerald-300">{{ stressStats.rear }}%</span></div>
-                    <div class="flex justify-between"><span>左/右偏差</span><span class="text-amber-300">{{ stressStats.lrBias }}%</span></div>
-                    <div class="flex justify-between"><span>左前轮</span><span>{{ stressStats.lf }}%</span></div>
-                    <div class="flex justify-between"><span>右前轮</span><span>{{ stressStats.rf }}%</span></div>
-                    <div class="flex justify-between"><span>左后轮</span><span>{{ stressStats.lr }}%</span></div>
-                    <div class="flex justify-between"><span>右后轮</span><span>{{ stressStats.rr }}%</span></div>
-                    <div class="flex justify-between"><span>底盘载荷</span><span>{{ stressStats.chassisLoad }}%</span></div>
-                    <div class="flex justify-between"><span>最大受力部位</span><span class="text-rose-300">{{ stressStats.maxPart }}</span></div>
-                    <div class="mt-2 px-2 py-1 rounded bg-rose-900/20 border border-rose-700/30 text-rose-200">
-                        稳定性警告：{{ stressStats.warning }}
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="stressHover" class="absolute pointer-events-none px-2 py-1 text-[11px] text-white bg-slate-900/90 border border-cyan-400/30 rounded shadow-lg"
-                 :style="{ left: stressHover.x + 'px', top: stressHover.y + 'px' }">
-                {{ stressHover.label }}：{{ stressHover.value }}%
-            </div>
         </div>
 
         <!-- RIGHT: AI & Feedback -->
@@ -631,13 +604,20 @@
 
 <script>
 const { createApp, ref, reactive, computed, watch, onMounted, nextTick } = Vue;
-const API_BASE = 'https://bi-she.onrender.com';
+const isLocalHost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+const API_BASE = isLocalHost
+    ? 'http://localhost:3000'
+    : 'https://bi-she.onrender.com';
 
 createApp({
     setup() {
         // --- State Management ---
         const history = ref([]);
         const activeHoverParam = ref(null);
+        const initialModule = new URLSearchParams(window.location.search).get('module');
+        const activeModule = ref('chassis');
         
         // --- Steps & Navigation ---
         const steps = [
@@ -652,9 +632,9 @@ createApp({
         // --- Parameters (Detailed) ---
         const params = reactive({
             // Chassis (Basic)
-            vehicleLength: 3.6,
-            vehicleWidth: 1.6,
-            wheelbase: 2.1,
+            vehicleLength: 2.0,
+            vehicleWidth: 1.0,
+            wheelbase: 1.3,
 
             // Wheels & Suspension (Basic)
             tireOuterDiameter: 0.7,
@@ -700,9 +680,7 @@ createApp({
         const showAudit = ref(false);
         const auditResult = ref(null);
         const viewMode = ref('structure');
-        const stressEnabled = ref(false);
         const showViewMenu = ref(false);
-        const stressHover = ref(null);
         const showIntro = ref(true);
         const introInput = ref('');
         const introLoading = ref(false);
@@ -717,8 +695,31 @@ createApp({
             history.value.push(JSON.parse(JSON.stringify(params)));
             redoStack.value = [];
         };
+        const applyProportionSoftConstraints = () => {
+            const length = Number(params.vehicleLength || 0);
+            if (!length) return;
+            const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
+            const wbMin = length * 0.55;
+            const wbMax = length * 0.7;
+            const widthMin = length * 0.35;
+            const widthMax = length * 0.55;
+            let changed = false;
+
+            const nextWheelbase = clamp(params.wheelbase, wbMin, wbMax);
+            const nextWidth = clamp(params.vehicleWidth, widthMin, widthMax);
+
+            if (nextWheelbase !== params.wheelbase || nextWidth !== params.vehicleWidth) {
+                suppressHistory = true;
+                params.wheelbase = Number(nextWheelbase.toFixed(2));
+                params.vehicleWidth = Number(nextWidth.toFixed(2));
+                suppressHistory = false;
+                changed = true;
+            }
+            return changed;
+        };
+
         const onParamChange = () => {
-            // Debounce history push could be added here
+            applyProportionSoftConstraints();
         };
         // Watch for end of drag to push history? For simplicity, we push periodically or on major change logic
         // For this demo, let's just push initial state
@@ -782,6 +783,32 @@ createApp({
             }
             return `${val}${param.unit || ''}`;
         };
+
+        const syncModuleParam = (value) => {
+            const url = new URL(window.location.href);
+            if (value === 'shell') {
+                url.searchParams.set('module', 'shell');
+            } else {
+                url.searchParams.delete('module');
+            }
+            window.history.replaceState({}, '', url.toString());
+        };
+
+        const goShell = () => {
+            try {
+                if (introInput.value && introInput.value.trim()) {
+                    localStorage.setItem('autogen_intent', introInput.value.trim());
+                }
+                localStorage.setItem('autogen_params', JSON.stringify(params));
+            } catch (err) {
+                console.warn('Unable to persist shell context', err);
+            }
+            window.location.href = 'shell.html';
+        };
+        const goChassis = () => {
+            window.location.href = '1.html';
+        };
+
 
         const parseRecommendResponse = (text) => {
             const tryParse = (raw) => {
@@ -904,9 +931,17 @@ createApp({
                 issues.push('轮胎宽度超出常规范围。');
                 suggestions.push('将轮胎宽度调整到 0.2m - 0.4m。');
             }
-            if (params.vehicleLength < params.wheelbase + 0.6) {
-                issues.push('车身总长可能不足以容纳当前轴距。');
-                suggestions.push('适当增加车身总长或缩短轴距。');
+            const wbMin = params.vehicleLength * 0.55;
+            const wbMax = params.vehicleLength * 0.7;
+            if (params.wheelbase < wbMin || params.wheelbase > wbMax) {
+                issues.push('轴距与车身总长比例不协调。');
+                suggestions.push('建议将轴距控制在车身总长的 55%–70%。');
+            }
+            const widthMin = params.vehicleLength * 0.35;
+            const widthMax = params.vehicleLength * 0.55;
+            if (params.vehicleWidth < widthMin || params.vehicleWidth > widthMax) {
+                issues.push('载物台宽度与车身总长比例不协调。');
+                suggestions.push('建议将载物台宽度控制在车身总长的 35%–55%。');
             }
             const ok = issues.length === 0;
             return {
@@ -964,6 +999,7 @@ createApp({
                 auditLoading.value = false;
             }
         };
+
 
         const exportDrawing = async () => {
             if (!modelRoot) return;
@@ -1246,16 +1282,16 @@ createApp({
             const next = { ...baseParams };
             if (/校园|学校|运输|配送|货物|载重/.test(intent)) {
                 next.payloadCapacity = Math.min(200, baseParams.payloadCapacity + 30);
-                next.vehicleWidth = Math.min(2.0, baseParams.vehicleWidth + 0.1);
-                next.vehicleLength = Math.min(4.2, baseParams.vehicleLength + 0.2);
+                next.vehicleWidth = Math.min(1.4, baseParams.vehicleWidth + 0.08);
+                next.vehicleLength = Math.min(3.0, baseParams.vehicleLength + 0.15);
             }
             if (/越野|崎岖|爬坡|复杂|户外/.test(intent)) {
                 next.chassisHeight = Math.min(0.55, baseParams.chassisHeight + 0.08);
                 next.tireWidth = Math.min(0.38, baseParams.tireWidth + 0.04);
             }
             if (/速度|高速|竞速|灵活/.test(intent)) {
-                next.vehicleLength = Math.max(3.0, baseParams.vehicleLength - 0.1);
-                next.wheelbase = Math.min(2.6, baseParams.wheelbase + 0.1);
+                next.vehicleLength = Math.max(1.0, baseParams.vehicleLength - 0.1);
+                next.wheelbase = Math.min(2.0, baseParams.wheelbase + 0.08);
             }
             if (/续航|电池|里程/.test(intent)) {
                 next.batteryCapacity = Math.min(90, baseParams.batteryCapacity + 10);
@@ -1267,6 +1303,9 @@ createApp({
         };
 
         const closeIntro = () => {
+            if (introInput.value && introInput.value.trim()) {
+                localStorage.setItem('autogen_intent', introInput.value.trim());
+            }
             showIntro.value = false;
         };
 
@@ -1343,77 +1382,6 @@ createApp({
             if (window.setViewMode) window.setViewMode(mode);
         };
 
-        const getStressValueForMesh = (mesh) => {
-            if (!modelState || !mesh || !mesh.userData || !mesh.userData._baseCenter) return null;
-            const stats = stressStats.value;
-            const center = mesh.userData._baseCenter;
-            const axes = modelState.axes;
-            const axisValue = (v, axis) => axis === 'x' ? v.x : axis === 'z' ? v.z : v.y;
-            const isFront = axisValue(center, axes.lengthAxis) < axisValue(axes.center, axes.lengthAxis);
-            const isRight = axisValue(center, axes.widthAxis) >= axisValue(axes.center, axes.widthAxis);
-            const name = normalize(mesh.name || '');
-            if (name.includes('chassis')) return stats.chassisLoad;
-            if (name.includes('tire') || name.includes('rim')) {
-                if (isFront && !isRight) return stats.lf;
-                if (isFront && isRight) return stats.rf;
-                if (!isFront && !isRight) return stats.lr;
-                return stats.rr;
-            }
-            if (name.includes('suspension') || name.includes('shock') || name.includes('steering')) {
-                if (isFront && !isRight) return Math.round(stats.lf * 0.9);
-                if (isFront && isRight) return Math.round(stats.rf * 0.9);
-                if (!isFront && !isRight) return Math.round(stats.lr * 0.9);
-                return Math.round(stats.rr * 0.9);
-            }
-            const axleLoad = isFront ? stats.front : stats.rear;
-            return Math.min(100, Math.max(0, Math.round(axleLoad * 0.6)));
-        };
-
-        const getStressLabelForMesh = (mesh) => {
-            if (!modelState || !mesh || !mesh.userData || !mesh.userData._baseCenter) return '部件载荷';
-            const name = normalize(mesh.name || '');
-            const center = mesh.userData._baseCenter;
-            const axes = modelState.axes;
-            const axisValue = (v, axis) => axis === 'x' ? v.x : axis === 'z' ? v.z : v.y;
-            const isFront = axisValue(center, axes.lengthAxis) < axisValue(axes.center, axes.lengthAxis);
-            const side = axisValue(center, axes.widthAxis) >= axisValue(axes.center, axes.widthAxis) ? '右' : '左';
-            const axle = isFront ? '前' : '后';
-            if (name.includes('tire') || name.includes('rim')) return `${side}${axle}轮载荷`;
-            if (name.includes('suspension') || name.includes('shock') || name.includes('steering')) return `${side}${axle}悬挂载荷`;
-            return `${side}${axle}结构载荷`;
-        };
-
-        const applyStressOverlay = (enabled) => {
-            if (!modelRoot) return;
-            modelRoot.traverse((child) => {
-                if (!child.isMesh || !child.material) return;
-                if (!enabled) {
-                    if (window.setViewMode) window.setViewMode(viewMode.value);
-                    return;
-                }
-                const load = getStressValueForMesh(child);
-                if (load === null) return;
-                const t = Math.min(1, Math.max(0, load / 100));
-                const color = new THREE.Color().setHSL(0.6 - 0.6 * t, 0.8, 0.55);
-                const applyMat = (mat) => {
-                    if (mat.map) {
-                        mat.color.copy(color);
-                    } else {
-                        mat.color.copy(color);
-                    }
-                    if (mat.emissive) mat.emissive.copy(color).multiplyScalar(0.2);
-                    mat.needsUpdate = true;
-                };
-                if (Array.isArray(child.material)) child.material.forEach(applyMat);
-                else applyMat(child.material);
-            });
-        };
-
-        const toggleStressAnalysis = () => {
-            if (!stressEnabled.value) stressHover.value = null;
-            applyStressOverlay(stressEnabled.value);
-        };
-
         const toggleViewMenu = () => {
             showViewMenu.value = !showViewMenu.value;
         };
@@ -1446,9 +1414,9 @@ createApp({
                 icon: "directions_car",
                 desc: "决定车辆的基础尺寸和空间布局。",
                 params: [
-                    { key: 'vehicleLength', label: '车身总长', min: 2.8, max: 4.8, step: 0.1, unit: 'm', type: 'range', eduText: '车身越长，直线稳定性越好，但转弯半径会更大。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
-                    { key: 'vehicleWidth', label: '载物台宽度', min: 1.2, max: 2.0, step: 0.05, unit: 'm', type: 'range', eduText: '宽度更大载物能力更强，但会增加体积与阻力。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
-                    { key: 'wheelbase', label: '轴距', min: 1.6, max: 3.0, step: 0.1, unit: 'm', type: 'range', eduText: '轴距越大行驶越稳，轴距越小操控更灵活。', targetKeywords: ['suspension', 'suspension_mount', 'suspension_link', 'drive_shaft', 'steering_knuckle'], targetPartLabel: '悬挂与转向' }
+                    { key: 'vehicleLength', label: '车身总长', min: 1.0, max: 3.0, step: 0.1, unit: 'm', type: 'range', eduText: '车身越长，直线稳定性越好，但转弯半径会更大。建议保持轴距约为车长的 55%–70%。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'vehicleWidth', label: '载物台宽度', min: 0.6, max: 1.4, step: 0.05, unit: 'm', type: 'range', eduText: '宽度更大载物能力更强，但会增加体积与阻力。建议保持宽度约为车长的 35%–55%。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
+                    { key: 'wheelbase', label: '轴距', min: 0.7, max: 2.0, step: 0.1, unit: 'm', type: 'range', eduText: '轴距越大行驶越稳，轴距越小操控更灵活。建议保持轴距约为车长的 55%–70%。', targetKeywords: ['suspension', 'suspension_mount', 'suspension_link', 'drive_shaft', 'steering_knuckle'], targetPartLabel: '悬挂与转向' }
                 ],
                 advancedParams: [
                     { key: 'chassisHeight', label: '底盘高度', min: 0.2, max: 0.6, step: 0.02, unit: 'm', type: 'range', eduText: '提高底盘高度有利于通过性，但重心会上升。', targetKeywords: ['chassis'], targetPartLabel: '车身/底盘' },
@@ -1610,59 +1578,6 @@ createApp({
             };
         });
 
-        const stressStats = computed(() => {
-            const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-            let front = clamp(params.weightDistribution || 50, 30, 70);
-            const payloadShift = clamp((params.payloadCapacity || 0) / 200 * 8, 0, 8);
-            front = clamp(front - payloadShift, 28, 72);
-            if (params.driveType === 'fwd') front = clamp(front + 4, 28, 75);
-            if (params.driveType === 'rwd') front = clamp(front - 4, 25, 72);
-            if ((params.motorPower || 0) > 140) {
-                front = params.driveType === 'fwd' ? clamp(front + 2, 28, 75) :
-                        params.driveType === 'rwd' ? clamp(front - 2, 25, 72) : front;
-            }
-            const ratio = (params.wheelbase || 2.0) / Math.max(2.5, (params.vehicleLength || 3.5));
-            if (ratio < 0.55) front = clamp(front - 2, 25, 72);
-            if (ratio > 0.7) front = clamp(front + 2, 28, 75);
-            const rear = 100 - Math.round(front);
-
-            const lrBias = clamp((params.wheelOffset || 0) * 300, -8, 8);
-            const left = clamp(50 - lrBias / 2, 40, 60);
-            const right = 100 - left;
-
-            const lf = Math.round(front * (left / 100));
-            const rf = Math.round(front * (right / 100));
-            const lr = Math.round(rear * (left / 100));
-            const rr = Math.round(rear * (right / 100));
-
-            const chassisLoad = clamp(Math.round(8 + (params.bodyThickness || 0.04) * 200 + (params.payloadCapacity || 0) * 0.05), 8, 22);
-            const maxWheel = Math.max(lf, rf, lr, rr);
-            const maxWheelLabel = maxWheel === lf ? '左前轮' : maxWheel === rf ? '右前轮' : maxWheel === lr ? '左后轮' : '右后轮';
-
-            let warning = '无明显异常';
-            if (params.chassisHeight > params.tireOuterDiameter * 0.45) {
-                warning = '重心偏高';
-            } else if (Math.abs(lrBias) >= 6) {
-                warning = '左右偏载';
-            } else if (front >= 62) {
-                warning = '重心偏前';
-            } else if (rear >= 62) {
-                warning = '重心偏后';
-            }
-
-            return {
-                front: Math.round(front),
-                rear: Math.round(rear),
-                left: Math.round(left),
-                right: Math.round(right),
-                lf, rf, lr, rr,
-                chassisLoad,
-                lrBias: Math.abs(Math.round(lrBias)),
-                maxPart: `${maxWheelLabel}悬挂`,
-                warning
-            };
-        });
-
         // --- 3D Logic ---
         let scene, camera, renderer, vehicleGroup;
         let modelLoaded = false;
@@ -1682,6 +1597,7 @@ createApp({
                 partsMap[key].push(child);
             });
         };
+
 
         const initThree = () => {
             const container = document.getElementById('canvas-container');
@@ -2103,6 +2019,7 @@ createApp({
                 applyWheelTransform(item, item, widthOffset + offsetDelta, false, correction);
                 if (item.isFront) item.mesh.rotation[modelState.axes.upAxis] = item.baseRot[modelState.axes.upAxis];
             });
+
         };
 
         const updateGeometry = () => {
@@ -2174,7 +2091,6 @@ createApp({
                 root.rotation.set(0, -Math.PI / 2, 0);
 
                 applyModelColors(root);
-                if (stressEnabled.value) applyStressOverlay(true);
                 const setViewMode = (mode) => {
                     applyModelColors(modelRoot || root, mode);
                 };
@@ -2296,8 +2212,6 @@ createApp({
             let isDown = false, isPan = false;
             let startX, startY;
             const sensitivity = 0.005;
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
 
             dom.addEventListener('mousedown', e => {
                 isDown = true;
@@ -2346,31 +2260,6 @@ createApp({
                 if (e.deltaY > 0 && dist < 20) camera.position.addScaledVector(dir, -1);
             }, { passive: false });
 
-            dom.addEventListener('mousemove', e => {
-                if (isDown || !stressEnabled.value || !modelRoot) {
-                    if (stressHover.value) stressHover.value = null;
-                    return;
-                }
-                const rect = dom.getBoundingClientRect();
-                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-                raycaster.setFromCamera(mouse, camera);
-                const hits = raycaster.intersectObjects(partsIndex, true);
-                if (hits.length) {
-                    const hit = hits[0].object;
-                    const value = getStressValueForMesh(hit);
-                    if (value !== null) {
-                        stressHover.value = {
-                            label: getStressLabelForMesh(hit),
-                            value,
-                            x: e.clientX - rect.left + 12,
-                            y: e.clientY - rect.top + 12
-                        };
-                        return;
-                    }
-                }
-                stressHover.value = null;
-            });
         };
 
         // AI Logic (Placeholder for demo)
@@ -2414,9 +2303,9 @@ createApp({
         watch(() => [params.tireOuterDiameter, params.chassisHeight], clampChassisHeight);
 
         watch(params, () => {
+            applyProportionSoftConstraints();
             if (modelLoaded) updateModelTransforms();
             else updateGeometry();
-            if (stressEnabled.value) applyStressOverlay(true);
             pushHistory(); // For undo
         }, { deep: true });
 
@@ -2431,13 +2320,16 @@ createApp({
             history, undo, redo, resetParams, exportModel, exportDrawing,
             redoStack, recommendations, formatRecommended, fetchRecommendations, recLoading, recError, saveConfig,
             auditLoading, auditError, showAudit, auditResult, auditParams,
-            stressEnabled, showViewMenu, stressStats, stressHover, toggleStressAnalysis, setCameraView, toggleViewMenu,
+            showViewMenu, setCameraView, toggleViewMenu,
             userInput, chatHistory, sendMessage, translateMetric, onParamChange, setViewMode,
             showIntro, introInput, introLoading, introError, introStatus, generateIntroParams, closeIntro,
-            viewMode
+            viewMode,
+            activeModule, goShell, goChassis
         };
     }
 }).mount('#app');
 </script>
 </body>
 </html>
+
+

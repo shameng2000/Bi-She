@@ -1,0 +1,857 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO-GEN Pro | 外壳设计</title>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Three.js (for combined preview) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.86);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .muted {
+            color: var(--text-muted);
+        }
+
+        .pill {
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            background: rgba(14, 116, 144, 0.25);
+            color: #7dd3fc;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 11px;
+        }
+
+        .cta-btn {
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .ghost-btn {
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #e2e8f0;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: #fff;
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.35);
+        }
+
+        .danger-text {
+            color: #fca5a5;
+        }
+
+        .progress-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.15);
+            overflow: hidden;
+        }
+
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #22d3ee);
+        }
+
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak class="h-screen flex flex-col">
+    <header class="h-14 glass-panel z-50 flex items-center justify-between px-6 shrink-0 border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg">A</div>
+            <span class="font-bold text-lg tracking-wide text-white">AUTO-GEN <span class="text-xs font-normal text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded ml-1">Pro</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <nav class="flex items-center gap-4 text-xs text-slate-300">
+                <a href="index.html" class="hover:text-cyan-300 transition">首页</a>
+                <a href="docs.html" class="hover:text-cyan-300 transition">学习文档</a>
+                <a href="me.html" class="hover:text-cyan-300 transition">我的</a>
+                <a href="1.html" class="hover:text-cyan-300 transition">底盘设计</a>
+                <a href="shell.html" class="text-cyan-300">外壳设计</a>
+            </nav>
+            <button @click="goChassis" class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs flex items-center gap-2 border border-blue-500/60 shadow-lg shadow-blue-900/40">
+                <span class="material-icons-round text-sm">arrow_back</span> 返回底盘设计
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        <section class="w-[480px] max-w-[44vw] h-full overflow-y-auto px-5 py-6 space-y-5">
+            <div class="glass-panel rounded-2xl p-5">
+                <div class="flex items-center gap-2">
+                    <span class="material-icons-round text-cyan-300">emoji_objects</span>
+                    <div class="section-title">外壳设计目标</div>
+                    <span class="pill">Step 1</span>
+                </div>
+                <p class="text-xs muted mt-1">读取底盘参数并结合你的描述，生成仅包含外壳的草图。</p>
+
+                <div class="grid grid-cols-3 gap-2 mt-4 text-xs">
+                    <div class="rounded-lg bg-slate-900/50 border border-white/10 p-2">
+                        <div class="muted">总长</div>
+                        <div class="font-semibold text-cyan-200">{{ fmtMm(chassis.length) }} mm</div>
+                    </div>
+                    <div class="rounded-lg bg-slate-900/50 border border-white/10 p-2">
+                        <div class="muted">轴距</div>
+                        <div class="font-semibold text-cyan-200">{{ fmtMm(chassis.wheelbase) }} mm</div>
+                    </div>
+                    <div class="rounded-lg bg-slate-900/50 border border-white/10 p-2">
+                        <div class="muted">宽度</div>
+                        <div class="font-semibold text-cyan-200">{{ fmtMm(chassis.width) }} mm</div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-xs muted">底盘设计目标（从上一页继承）</label>
+                    <div class="mt-1 px-3 py-2 rounded-lg bg-slate-950/60 border border-white/10 text-sm">
+                        {{ designIntent || '未填写，请在下方补充外壳需求。' }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-xs muted">外壳造型描述</label>
+                    <textarea v-model="shellInput" rows="4" class="mt-2 w-full rounded-lg bg-slate-950/70 border border-slate-700 p-3 text-sm text-slate-200 focus:border-cyan-400 outline-none" placeholder="例：越野风格、硬朗线条、简洁几何、可3D打印、顶部平整"></textarea>
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-xs muted">反向提示词（可选）</label>
+                    <input v-model="negativeInput" type="text" class="mt-2 w-full rounded-lg bg-slate-950/70 border border-slate-700 p-2 text-sm text-slate-200 focus:border-cyan-400 outline-none" placeholder="例：轮胎、轮毂、底盘、悬挂、玻璃" />
+                </div>
+
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="muted">将自动生成“仅外壳、适合图生3D”的提示词。</span>
+                    <button @click="reloadChassis" class="text-cyan-300 hover:text-cyan-200">重新读取</button>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-5">
+                <div class="flex items-center gap-2">
+                    <span class="material-icons-round text-cyan-300">brush</span>
+                    <div class="section-title">外壳草图</div>
+                    <span class="pill">Step 2</span>
+                </div>
+                <p class="text-xs muted mt-1">单张大图展示，支持重新生成。</p>
+
+                <div class="mt-4 flex gap-2">
+                    <button @click="generateImage" :disabled="imageLoading" class="cta-btn primary-btn flex-1">
+                        {{ imageLoading ? '生成中...' : '生成外壳草图' }}
+                    </button>
+                    <button @click="regenerateImage" :disabled="imageLoading || !imageDataUrl" class="cta-btn ghost-btn">重新生成</button>
+                </div>
+
+                <div v-if="imageStatus" class="mt-3 text-xs text-cyan-200">{{ imageStatus }}</div>
+                <div v-if="imageError" class="mt-2 text-xs danger-text">生成失败：{{ imageError }}</div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-5">
+                <div class="flex items-center gap-2">
+                    <span class="material-icons-round text-cyan-300">view_in_ar</span>
+                    <div class="section-title">生成外壳模型</div>
+                    <span class="pill">Step 3</span>
+                </div>
+                <p class="text-xs muted mt-1">将草图转为 3D 模型，完成后可预览外壳模型或合体预览。</p>
+
+                <div class="mt-4">
+                    <button @click="generateModel" :disabled="modelLoading || !imageDataUrl" class="cta-btn primary-btn w-full">
+                        {{ modelLoading ? '生成中...' : '生成外壳模型' }}
+                    </button>
+                </div>
+
+                <div class="mt-3" v-if="modelLoading">
+                    <div class="progress-bar"><span :style="{ width: progressPercent + '%' }"></span></div>
+                    <div class="text-xs muted mt-2">预计 {{ estimateText }}，已等待 {{ elapsedText }}</div>
+                </div>
+
+                <div v-if="modelError" class="mt-2 text-xs danger-text">生成失败：{{ modelError }}</div>
+
+                <div v-if="modelFileUrl" class="mt-4 text-xs">
+                    <div class="text-cyan-200">模型已生成</div>
+                    <div class="mt-2 flex gap-2">
+                        <a :href="modelFileUrl" target="_blank" class="cta-btn ghost-btn">下载模型</a>
+                        <button @click="openPreview" class="cta-btn ghost-btn">合体预览</button>
+                    </div>
+                    <div class="text-[11px] muted mt-2">外壳会自动按底盘尺寸等比例缩放并居中对齐。</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex-1 h-full px-6 py-6 overflow-y-auto">
+            <div class="glass-panel rounded-2xl p-6 h-full flex flex-col">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="material-icons-round text-cyan-300">image</span>
+                    <div class="section-title">{{ modelFileUrl ? '外壳模型预览' : '草图预览' }}</div>
+                    <span class="pill">{{ modelFileUrl ? '模型' : '单张展示' }}</span>
+                </div>
+
+                <div class="flex-1 rounded-2xl border border-white/10 bg-slate-950/60 flex items-center justify-center overflow-hidden">
+                    <div v-if="!imageDataUrl && !modelFileUrl" class="text-sm muted text-center px-6">
+                        还没有生成草图。<br>完成 Step 2 后，会在这里展示单张外壳草图。
+                    </div>
+                    <img v-else-if="!modelFileUrl" :src="imageDataUrl" alt="外壳草图" class="max-h-full max-w-full object-contain" />
+                    <div v-else id="model-preview-canvas" class="w-full h-full"></div>
+                </div>
+                <div v-if="modelPreviewError" class="mt-3 text-xs danger-text">模型预览失败：{{ modelPreviewError }}</div>
+
+                <div class="mt-4 text-xs muted flex items-center justify-between">
+                    <div v-if="modelFileUrl">
+                        外壳 bbox：{{ modelDims.length }} × {{ modelDims.width }} × {{ modelDims.height }} mm
+                    </div>
+                    <div v-else>提示词已自动嵌入底盘尺寸与轴距，确保尺寸匹配。</div>
+                    <button @click="copyPrompt" class="text-cyan-300 hover:text-cyan-200">复制提示词</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div v-if="showPreview" class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/80">
+        <div class="glass-panel w-[980px] max-w-[95vw] h-[80vh] rounded-2xl p-4 relative">
+            <button @click="closePreview" class="absolute top-4 right-4 text-xs text-slate-300 hover:text-white">关闭</button>
+            <div class="flex items-center gap-2 mb-3">
+                <span class="material-icons-round text-cyan-300">layers</span>
+                <div class="section-title">外壳 + 底盘合体预览</div>
+                <span class="pill">预览</span>
+            </div>
+            <div id="preview-canvas" class="w-full h-[calc(80vh-90px)] rounded-xl border border-white/10 bg-slate-950/70"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+createApp({
+    setup() {
+        const isLocal =
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+        const API_BASE = isLocal
+            ? 'http://localhost:3000'
+            : 'https://bi-she.onrender.com';
+
+        const chassis = ref({ length: 3.6, wheelbase: 2.1, width: 1.6 });
+        const designIntent = ref('');
+        const shellInput = ref('');
+        const negativeInput = ref('轮胎,轮毂,底盘,悬挂,传动,电机');
+
+        const imageLoading = ref(false);
+        const imageStatus = ref('');
+        const imageError = ref('');
+        const imageDataUrl = ref('');
+        const imageBase64 = ref('');
+
+        const modelLoading = ref(false);
+        const modelError = ref('');
+        const modelPreviewError = ref('');
+        const modelFileUrl = ref('');
+        const modelPreviewUrl = ref('');
+        const modelDims = ref({ length: '-', width: '-', height: '-' });
+        const showPreview = ref(false);
+
+        const elapsedSec = ref(0);
+        const timerId = ref(null);
+        const estimateSec = ref(240);
+
+        const fmtMm = (val) => Math.round((val || 0) * 1000);
+
+        const reloadChassis = () => {
+            try {
+                const stored = localStorage.getItem('autogen_params');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    chassis.value = {
+                        length: Number(parsed.vehicleLength || chassis.value.length),
+                        wheelbase: Number(parsed.wheelbase || chassis.value.wheelbase),
+                        width: Number(parsed.vehicleWidth || chassis.value.width),
+                    };
+                }
+                const intent = localStorage.getItem('autogen_intent');
+                if (intent) designIntent.value = intent;
+            } catch (err) {
+                console.warn('读取底盘参数失败', err);
+            }
+        };
+
+        const buildShellConstraints = () => {
+            const lengthMm = fmtMm(chassis.value.length);
+            const widthMm = fmtMm(chassis.value.width);
+            const wheelbaseMm = fmtMm(chassis.value.wheelbase);
+            return [
+                `外壳长度应贴合当前底盘总长比例（约${lengthMm}mm），不得明显偏长或偏短。`,
+                `外壳宽度应控制在当前底盘宽度范围内（约${widthMm}mm），不得外扩过宽。`,
+                `外壳体量与当前轴距协调（约${wheelbaseMm}mm），比例稳定。`,
+                '货舱/功能舱范围应贴合底盘可承载区域，前后体量分配合理。',
+                '外壳应与底盘形成连续整体，不是底盘上随便叠放一个箱体。',
+                '前部需预留设备/感知功能区，后部为封闭货舱，形成前后分区的整体轮廓。'
+            ];
+        };
+
+        const buildPrompt = () => {
+            const layer1 = [
+                '请生成一辆基于当前底盘参数的四轮无人运输模型小车外壳方案图。',
+                '用于校园内短距离物品运输的创客课程模型原型车。',
+                '必须是四个轮子，四轮布局清晰可见，轮距与轴距协调。',
+                '必须具有封闭的载物空间/封闭货舱，货舱是整车外壳的一体化结构。',
+                '严禁载人舱/驾驶舱/座舱/座椅/方向盘等任何可乘坐空间。',
+                '不是现实道路车辆，不是商用真车。'
+            ];
+            const layer2 = [
+                '结构定义：具有完整上部壳体，前部功能区/设备舱与后部封闭货舱一体化衔接。',
+                '功能导向：强调载物功能与封闭货舱，非载人用途。',
+                '结构导向：低重心、紧凑比例、稳定姿态。',
+                '外壳与底盘尺寸匹配：壳体长度、宽度、体量与轴距协调。',
+                '避免“底盘上放一个箱子”的分离式结构。'
+            ];
+            const layer3 = [
+                '造型要求：不是简单箱体，不是普通货箱，必须有完整整车造型语言与整体化体块关系。',
+                '造型要求：前部有明确设备舱/感知舱特征，主体连续过渡到封闭货舱。',
+                '风格：工业设计概念模型/产品级渲染，真实材质质感与真实光照阴影。',
+                '形态：简洁几何面、模块化但不呆板、现代化一体式外壳。',
+                '画面：干净背景、单体展示、三分之四视角或等轴视角。',
+                '画幅：横向 16:9 构图，主体清晰居中，留白简洁。',
+                '避免汽车广告风、道路场景和真车细节。'
+            ];
+            const constraints = buildShellConstraints();
+
+            const parts = [
+                ...layer1,
+                ...layer2,
+                ...layer3,
+                ...constraints,
+                '参考图只用于学习任务型运输小车的壳体气质、货舱体量和模块化语言，避免学习真实商用车比例。'
+            ];
+
+            if (designIntent.value) {
+                parts.push(`设计目标参考：${designIntent.value}`);
+            }
+            if (shellInput.value.trim()) {
+                parts.push(`用户补充风格：${shellInput.value.trim()}`);
+            }
+
+            const negativeZh = [
+                '载人舱', '驾驶舱', '座舱', '乘员空间', '座椅', '方向盘', '车门', '大面积透明舱',
+                '小巴', '摆渡车', '胶囊车', '载人小车', '乘用车',
+                '敞口货斗', '开放式车斗', '简易货箱', '普通货箱', '简单箱体', '底盘上放一个箱子', '独立货柜',
+                '平台车', '托盘车', '平板车', '小卡车货斗', '农用拖斗', '工程翻斗车',
+                '三轮', '六轮', '履带', '轮子数量错误', '轮子缺失', '浮空底座',
+                '卡车', '货车', '厢式货车', '皮卡', '真实商用车', '真实配送车', '道路车辆',
+                '写实前脸', '汽车广告渲染', '城市道路', '交通场景', '车牌', '品牌标识',
+                '尺寸标注', '箭头', '标尺', '工程标注', '文字标注',
+                '外露复杂机械结构', '外露传动结构', '壳体悬浮', '壳体过大', '壳体过小',
+                '没有前部特征', '没有整体造型', '只有箱子没有车体语言', '过于简陋', '过于单一'
+            ];
+            const negativeEn = [
+                'passenger cabin', 'cockpit', 'seat', 'steering wheel', 'driver', 'passenger', 'people',
+                'minibus', 'shuttle pod', 'capsule car',
+                'open cargo bed', 'open tray', 'platform cart', 'pallet truck', 'flatbed',
+                'simple box', 'plain cargo box', 'box on chassis', 'isolated container',
+                'dump truck bed', 'trailer bed',
+                'three wheels', 'six wheels', 'tracks', 'missing wheels', 'floating base',
+                'truck', 'cargo van', 'pickup', 'commercial vehicle', 'real delivery vehicle', 'road vehicle',
+                'realistic front fascia', 'advertisement poster', 'city traffic',
+                'dimension labels', 'dimension arrows', 'measurement marks', 'blueprint',
+                'exposed mechanics', 'mismatched shell', 'oversized body', 'undersized body',
+                'no front feature', 'no integrated form', 'overly plain', 'too simplistic'
+            ];
+
+            if (negativeInput.value.trim()) {
+                negativeZh.push(negativeInput.value.trim());
+            }
+
+            parts.push(`中文负向排除项：${negativeZh.join('、')}。`);
+            parts.push(`英文补充排除项：${negativeEn.join(', ')}。`);
+
+            return parts.join(' ');
+        };
+
+        const copyPrompt = async () => {
+            try {
+                await navigator.clipboard.writeText(buildPrompt());
+                imageStatus.value = '提示词已复制。';
+                setTimeout(() => (imageStatus.value = ''), 2000);
+            } catch (err) {
+                imageStatus.value = '复制失败，请手动复制。';
+            }
+        };
+
+        const generateImage = async () => {
+            imageError.value = '';
+            imageStatus.value = '正在生成草图...';
+            imageLoading.value = true;
+            imageDataUrl.value = '';
+            imageBase64.value = '';
+            modelFileUrl.value = '';
+            modelPreviewUrl.value = '';
+            try {
+                const resp = await fetch(`${API_BASE}/api/shell/image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: buildPrompt(),
+                        req_key: 'jimeng_t2i_v40',
+                        poll_interval: 5,
+                        poll_limit: 24,
+                        extra: { force_single: true }
+                    })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || '草图生成失败');
+                if (!data.ok) throw new Error('草图生成超时，请重试');
+                if (data.imageBase64) {
+                    imageBase64.value = data.imageBase64;
+                    imageDataUrl.value = `data:image/jpeg;base64,${data.imageBase64}`;
+                } else if (data.imageUrls && data.imageUrls.length) {
+                    imageDataUrl.value = data.imageUrls[0];
+                }
+                imageStatus.value = '草图已生成，可继续生成 3D 外壳。';
+            } catch (err) {
+                imageError.value = err.message || String(err);
+                imageStatus.value = '';
+            } finally {
+                imageLoading.value = false;
+            }
+        };
+
+        const regenerateImage = () => generateImage();
+
+        const startTimer = () => {
+            elapsedSec.value = 0;
+            if (timerId.value) clearInterval(timerId.value);
+            timerId.value = setInterval(() => {
+                elapsedSec.value += 1;
+            }, 1000);
+        };
+
+        const stopTimer = () => {
+            if (timerId.value) {
+                clearInterval(timerId.value);
+                timerId.value = null;
+            }
+        };
+
+        const generateModel = async () => {
+            modelError.value = '';
+            modelPreviewError.value = '';
+            modelLoading.value = true;
+            modelFileUrl.value = '';
+            modelPreviewUrl.value = '';
+            modelDims.value = { length: '-', width: '-', height: '-' };
+            startTimer();
+            try {
+                const resp = await fetch(`${API_BASE}/api/shell/model`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imageBase64: imageBase64.value || undefined,
+                        imageUrl: imageBase64.value ? undefined : imageDataUrl.value,
+                        poll_interval: 8,
+                        poll_limit: 80
+                    })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || '模型生成失败');
+                modelFileUrl.value = data.fileUrl || '';
+                modelPreviewUrl.value = data.previewUrl || '';
+                if (!modelFileUrl.value) {
+                    throw new Error('Seed3D 未返回模型文件地址');
+                }
+                await nextTick();
+                const lowerUrl = modelFileUrl.value.toLowerCase();
+                if (!lowerUrl.includes('.glb') && !lowerUrl.includes('.gltf') && !lowerUrl.includes('.obj')) {
+                    modelPreviewError.value = '模型格式不是 GLB/GLTF/OBJ，无法在线预览，请下载后查看。';
+                    return;
+                }
+                initModelPreview();
+            } catch (err) {
+                modelError.value = err.message || String(err);
+            } finally {
+                modelLoading.value = false;
+                stopTimer();
+            }
+        };
+
+        const progressPercent = computed(() => {
+            const p = Math.min(100, Math.round((elapsedSec.value / estimateSec.value) * 100));
+            return p;
+        });
+
+        const estimateText = computed(() => {
+            const min = Math.max(2, Math.round(estimateSec.value / 60));
+            return `${min} 分钟左右`;
+        });
+
+        const elapsedText = computed(() => {
+            const m = Math.floor(elapsedSec.value / 60);
+            const s = elapsedSec.value % 60;
+            return `${m}m ${s}s`;
+        });
+
+        const goChassis = () => {
+            window.location.href = '1.html';
+        };
+
+        let previewRenderer = null;
+        let previewScene = null;
+        let previewCamera = null;
+        let previewRAF = null;
+        let previewControls = null;
+        let modelRenderer = null;
+        let modelScene = null;
+        let modelCamera = null;
+        let modelRAF = null;
+        let modelControls = null;
+
+        const openPreview = async () => {
+            showPreview.value = true;
+            await nextTick();
+            initPreviewScene();
+        };
+
+        const closePreview = () => {
+            showPreview.value = false;
+            if (previewRAF) cancelAnimationFrame(previewRAF);
+            if (previewRenderer) {
+                previewRenderer.dispose();
+                previewRenderer = null;
+            }
+            if (previewControls) {
+                previewControls.dispose();
+                previewControls = null;
+            }
+            previewScene = null;
+            previewCamera = null;
+        };
+
+        const resolveModelUrl = (rawUrl) => {
+            if (!rawUrl) return '';
+            if (rawUrl.startsWith('data:')) return rawUrl;
+            if (rawUrl.startsWith(API_BASE)) return rawUrl;
+            if (rawUrl.startsWith('/assets/')) return `${API_BASE}${rawUrl}`;
+            if (rawUrl.startsWith('http')) {
+                return `${API_BASE}/api/shell/fetch?url=${encodeURIComponent(rawUrl)}`;
+            }
+            return rawUrl;
+        };
+
+        const getExt = (rawUrl) => {
+            const clean = rawUrl.split('?')[0].toLowerCase();
+            const parts = clean.split('.');
+            return parts.length > 1 ? parts.pop() : '';
+        };
+
+        const loadObjWithTexture = (sourceUrl, onLoaded, onError) => {
+            const objLoader = new THREE.OBJLoader();
+            objLoader.load(sourceUrl, (obj) => {
+                const baseDir = sourceUrl.slice(0, sourceUrl.lastIndexOf('/') + 1);
+                const candidates = [
+                    'pbr_albedo.png',
+                    'texture.png',
+                    'albedo.png',
+                    'basecolor.png'
+                ];
+                const textureLoader = new THREE.TextureLoader();
+                const applyFallbackMaterial = () => {
+                    obj.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0xdbeafe,
+                                metalness: 0.2,
+                                roughness: 0.7
+                            });
+                        }
+                    });
+                };
+
+                const tryLoad = (index) => {
+                    if (index >= candidates.length) {
+                        applyFallbackMaterial();
+                        onLoaded(obj);
+                        return;
+                    }
+                    const texUrl = baseDir + candidates[index];
+                    textureLoader.load(
+                        texUrl,
+                        (tex) => {
+                            obj.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.material = new THREE.MeshStandardMaterial({
+                                        map: tex,
+                                        color: 0xffffff,
+                                        metalness: 0.2,
+                                        roughness: 0.7
+                                    });
+                                }
+                            });
+                            onLoaded(obj);
+                        },
+                        undefined,
+                        () => tryLoad(index + 1)
+                    );
+                };
+
+                tryLoad(0);
+            }, undefined, onError);
+        };
+
+        const initModelPreview = () => {
+            const container = document.getElementById('model-preview-canvas');
+            if (!container || !modelFileUrl.value) return;
+
+            modelPreviewError.value = '';
+            if (modelRAF) cancelAnimationFrame(modelRAF);
+            if (modelRenderer) {
+                modelRenderer.dispose();
+                modelRenderer = null;
+            }
+            if (modelControls) {
+                modelControls.dispose();
+                modelControls = null;
+            }
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            modelScene = new THREE.Scene();
+            modelScene.background = new THREE.Color(0x0b1224);
+
+            modelCamera = new THREE.PerspectiveCamera(42, width / height, 0.1, 200);
+            modelCamera.position.set(2.8, 1.6, 3.4);
+
+            modelRenderer = new THREE.WebGLRenderer({ antialias: true });
+            modelRenderer.setSize(width, height);
+            container.innerHTML = '';
+            container.appendChild(modelRenderer.domElement);
+
+            modelControls = new THREE.OrbitControls(modelCamera, modelRenderer.domElement);
+            modelControls.enableDamping = true;
+            modelControls.dampingFactor = 0.08;
+            modelControls.minDistance = 0.6;
+            modelControls.maxDistance = 30;
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+            const key = new THREE.DirectionalLight(0xffffff, 0.9);
+            key.position.set(4, 6, 3);
+            modelScene.add(ambient, key);
+
+            const sourceUrl = resolveModelUrl(modelFileUrl.value);
+            const ext = getExt(modelFileUrl.value);
+            const applyModel = (model) => {
+                modelScene.add(model);
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                const center = new THREE.Vector3();
+                box.getSize(size);
+                box.getCenter(center);
+                model.position.sub(center);
+
+                modelDims.value = {
+                    length: Math.round(size.x * 1000),
+                    width: Math.round(size.z * 1000),
+                    height: Math.round(size.y * 1000),
+                };
+
+                const maxDim = Math.max(size.x, size.y, size.z) || 1;
+                const dist = maxDim * 2.6;
+                modelCamera.position.set(dist, dist * 0.55, dist * 1.05);
+                modelControls.target.set(0, 0, 0);
+                modelControls.update();
+            };
+
+            if (ext === 'obj') {
+                loadObjWithTexture(
+                    sourceUrl,
+                    (obj) => applyModel(obj),
+                    (err) => {
+                        console.error('OBJ preview load failed', err);
+                        modelPreviewError.value = '模型加载失败，请稍后重试。';
+                    }
+                );
+            } else {
+                const loader = new THREE.GLTFLoader();
+                loader.load(sourceUrl, (gltf) => {
+                    applyModel(gltf.scene);
+                }, undefined, (err) => {
+                    console.error('GLTF preview load failed', err);
+                    modelPreviewError.value = '模型加载失败，请稍后重试。';
+                });
+            }
+
+            const animate = () => {
+                modelRAF = requestAnimationFrame(animate);
+                if (modelControls) modelControls.update();
+                modelRenderer.render(modelScene, modelCamera);
+            };
+            animate();
+        };
+
+        const initPreviewScene = () => {
+            const container = document.getElementById('preview-canvas');
+            if (!container || !modelFileUrl.value) return;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            previewScene = new THREE.Scene();
+            previewScene.background = new THREE.Color(0x0b1224);
+
+            previewCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            previewCamera.position.set(4, 2.8, 5);
+
+            previewRenderer = new THREE.WebGLRenderer({ antialias: true });
+            previewRenderer.setSize(width, height);
+            container.innerHTML = '';
+            container.appendChild(previewRenderer.domElement);
+
+            previewControls = new THREE.OrbitControls(previewCamera, previewRenderer.domElement);
+            previewControls.enableDamping = true;
+            previewControls.dampingFactor = 0.08;
+            previewControls.minDistance = 0.8;
+            previewControls.maxDistance = 40;
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+            const key = new THREE.DirectionalLight(0xffffff, 0.8);
+            key.position.set(4, 6, 3);
+            previewScene.add(ambient, key);
+
+            const loader = new THREE.GLTFLoader();
+            const chassisUrl = '5glb.glb';
+
+            let chassisCenter = new THREE.Vector3();
+            loader.load(chassisUrl, (gltf) => {
+                const chassisModel = gltf.scene;
+                previewScene.add(chassisModel);
+                const box = new THREE.Box3().setFromObject(chassisModel);
+                box.getCenter(chassisCenter);
+                previewControls.target.copy(chassisCenter);
+                previewControls.update();
+            });
+
+            const sourceUrl = resolveModelUrl(modelFileUrl.value);
+            const ext = getExt(modelFileUrl.value);
+            const placeShell = (shellModel) => {
+                const shellBox = new THREE.Box3().setFromObject(shellModel);
+                const shellSize = new THREE.Vector3();
+                shellBox.getSize(shellSize);
+                const targetLength = chassis.value.length;
+                const targetWidth = chassis.value.width;
+                const scaleL = shellSize.x > 0 ? targetLength / shellSize.x : 1;
+                const scaleW = shellSize.z > 0 ? targetWidth / shellSize.z : 1;
+                const scale = Math.min(scaleL, scaleW);
+                shellModel.scale.setScalar(scale);
+
+                const scaledBox = new THREE.Box3().setFromObject(shellModel);
+                const scaledCenter = new THREE.Vector3();
+                scaledBox.getCenter(scaledCenter);
+                shellModel.position.add(chassisCenter.sub(scaledCenter));
+
+                previewScene.add(shellModel);
+            };
+
+            if (ext === 'obj') {
+                loadObjWithTexture(
+                    sourceUrl,
+                    (obj) => placeShell(obj),
+                    (err) => console.error('OBJ preview load failed', err)
+                );
+            } else {
+                loader.load(sourceUrl, (gltf) => {
+                    placeShell(gltf.scene);
+                });
+            }
+
+            const animate = () => {
+                previewRAF = requestAnimationFrame(animate);
+                if (previewControls) previewControls.update();
+                previewRenderer.render(previewScene, previewCamera);
+            };
+            animate();
+        };
+
+        onMounted(() => {
+            reloadChassis();
+        });
+
+        return {
+            chassis,
+            designIntent,
+            shellInput,
+            negativeInput,
+            imageLoading,
+            imageStatus,
+            imageError,
+            imageDataUrl,
+            modelLoading,
+            modelError,
+            modelPreviewError,
+            modelFileUrl,
+            showPreview,
+            progressPercent,
+            estimateText,
+            elapsedText,
+            fmtMm,
+            modelDims,
+            reloadChassis,
+            copyPrompt,
+            generateImage,
+            regenerateImage,
+            generateModel,
+            openPreview,
+            closePreview,
+            goChassis
+        };
+    }
+}).mount('#app');
+</script>
+</body>
+</html>

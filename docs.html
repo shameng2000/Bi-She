@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AUTO-GEN Pro | 学习文档</title>
+  <title>ProtoCart Lab | 学习文档</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: rgba(17, 25, 45, 0.75);
-      --line: rgba(148, 163, 184, 0.2);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --bg: #0b101d;
+      --panel: rgba(17, 25, 45, 0.78);
+      --panel-strong: rgba(12, 18, 33, 0.92);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #e6edf7;
+      --muted: #96a3bb;
       --accent: #4cc9f0;
-      --accent-2: #f4b740;
+      --accent-2: #3b82f6;
+      --highlight: #f4b740;
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: "Space Grotesk", sans-serif;
-      background: radial-gradient(900px 700px at 85% -10%, rgba(76, 201, 240, 0.15), transparent), var(--bg);
+      background:
+        radial-gradient(900px 700px at 85% -10%, rgba(76, 201, 240, 0.14), transparent),
+        linear-gradient(180deg, #0b101d 0%, #0a1322 55%, #0a121e 100%);
       color: var(--text);
     }
     header {
@@ -36,34 +42,49 @@
       justify-content: space-between;
       padding: 16px 6vw;
     }
-    .nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 14px;
+    }
     .nav a:hover { color: var(--accent); }
-    .brand { font-weight: 700; }
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
     .hero {
-      padding: 28px 6vw 10px;
+      padding: 28px 6vw 12px;
     }
     .hero-card {
-      background: var(--panel);
+      background: var(--panel-strong);
       border: 1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 22px 26px;
       display: grid;
       grid-template-columns: 1.2fr 1fr;
       gap: 18px;
+      box-shadow: var(--shadow);
     }
-    .hero h1 { margin: 0 0 10px; font-size: 28px; }
-    .hero p { color: var(--muted); margin: 0; }
+    .hero h1 { margin: 0 0 10px; font-size: 30px; }
+    .hero p { color: var(--muted); margin: 0; line-height: 1.7; }
     .hero-visual {
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid rgba(148, 163, 184, 0.2);
       background: #0f172a;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
     .layout {
       display: grid;
-      grid-template-columns: 260px 1fr;
+      grid-template-columns: 270px 1fr;
       gap: 24px;
-      padding: 24px 6vw 60px;
+      padding: 18px 6vw 60px;
     }
     .sidebar {
       position: sticky;
@@ -74,7 +95,25 @@
       border-radius: 18px;
       padding: 18px;
     }
-    .sidebar h3 { margin: 0 0 12px; font-size: 16px; }
+    .sidebar h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+    .toc-toggle {
+      display: none;
+    }
+    .toc-button {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+    }
     .sidebar a {
       display: block;
       padding: 9px 10px;
@@ -91,9 +130,17 @@
       border-radius: 18px;
       padding: 22px 24px;
     }
-    .content h2 { margin: 0 0 12px; font-size: 22px; }
-    .content p { color: var(--muted); line-height: 1.7; }
-    .tag { display: inline-flex; padding: 4px 10px; border-radius: 999px; background: rgba(76, 201, 240, 0.15); color: var(--accent); font-size: 12px; }
+    .content h2 { margin: 0 0 10px; font-size: 22px; }
+    .content h3 { margin: 16px 0 8px; font-size: 16px; color: var(--text); }
+    .content p { color: var(--muted); line-height: 1.75; margin: 8px 0; }
+    .tag {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(76, 201, 240, 0.15);
+      color: var(--accent);
+      font-size: 12px;
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -107,30 +154,77 @@
       background: rgba(15, 23, 42, 0.6);
       color: var(--muted);
       font-size: 13px;
+      line-height: 1.7;
     }
     .card strong { color: var(--text); display: block; margin-bottom: 6px; }
-    .table {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 8px;
-      margin-top: 14px;
-      font-size: 13px;
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      background: rgba(76, 201, 240, 0.08);
+      border-radius: 10px;
       color: var(--muted);
+      font-size: 13px;
     }
-    .table strong { color: var(--text); }
-    .list { margin: 12px 0; padding-left: 16px; color: var(--muted); }
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .step {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .step span {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--highlight));
+      color: #0b101d;
+      font-weight: 700;
+      flex: none;
+    }
+    .list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .case {
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .case strong { color: var(--text); display: block; margin-bottom: 6px; }
+
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { position: static; }
       .hero-card { grid-template-columns: 1fr; }
       .grid { grid-template-columns: 1fr; }
+      .toc-button { display: flex; }
+      .sidebar .toc-links { display: none; margin-top: 10px; }
+      .toc-toggle:checked + .toc-button + .toc-links { display: block; }
     }
   </style>
 </head>
 <body>
   <header>
     <div class="nav">
-      <div class="brand">AUTO-GEN Pro</div>
+      <div class="brand">ProtoCart Lab</div>
       <div>
         <a href="index.html">首页</a>
         <a href="docs.html">学习文档</a>
@@ -145,18 +239,10 @@
       <div>
         <span class="tag">文档中心</span>
         <h1>学习文档</h1>
-        <p>从平台概览到参数说明与分析方法，按步骤掌握参数化设计流程。</p>
+        <p>面向非专业用户的学习指引，从平台介绍到外壳设计与导出打样，按步骤理解完整流程。</p>
       </div>
       <div class="hero-visual">
-        <svg viewBox="0 0 520 220" width="100%" height="100%" role="img" aria-label="文档结构图">
-          <rect width="520" height="220" fill="#0f172a" />
-          <rect x="30" y="40" width="190" height="140" rx="16" fill="rgba(76,201,240,0.2)" />
-          <rect x="240" y="30" width="240" height="60" rx="14" fill="rgba(244,183,64,0.2)" />
-          <rect x="240" y="110" width="200" height="70" rx="14" fill="rgba(148,163,184,0.18)" />
-          <path d="M70 70 L190 70" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
-          <path d="M70 110 L160 110" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
-          <path d="M70 150 L140 150" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
-        </svg>
+        ProtoCart Lab Docs
       </div>
     </div>
   </section>
@@ -164,83 +250,167 @@
   <div class="layout">
     <aside class="sidebar">
       <h3>目录</h3>
-      <a href="#intro">平台简介</a>
-      <a href="#workflow">设计流程</a>
-      <a href="#params">参数体系</a>
-      <a href="#model">模型规范</a>
-      <a href="#analysis">性能与受力</a>
-      <a href="#export">导出说明</a>
-      <a href="#faq">常见问题</a>
+      <input class="toc-toggle" type="checkbox" id="toc-toggle" />
+      <label class="toc-button" for="toc-toggle">
+        <span>展开目录</span>
+        <span>+</span>
+      </label>
+      <div class="toc-links">
+        <a href="#intro">1. 平台介绍</a>
+        <a href="#quick">2. 快速开始</a>
+        <a href="#workflow">3. 完整工作流</a>
+        <a href="#chassis">4. 底盘设计基础</a>
+        <a href="#dictionary">5. 参数词典</a>
+        <a href="#metrics">6. 性能指标说明</a>
+        <a href="#ai">7. AI 助手使用指南</a>
+        <a href="#shell">8. 外壳设计指南</a>
+        <a href="#export">9. 导出与打样</a>
+        <a href="#cases">10. 示例案例</a>
+        <a href="#faq">11. 常见问题</a>
+      </div>
     </aside>
 
     <main class="content">
       <section id="intro">
-        <span class="tag">平台概览</span>
-        <h2>平台简介</h2>
-        <p>本平台用于车辆参数化设计与可视化验证，面向非专业用户与教学场景。通过参数驱动模型，实现快速设计与迭代。</p>
+        <span class="tag">平台介绍</span>
+        <h2>认识 ProtoCart Lab</h2>
+        <p>面向非专业用户的 AI 辅助模型小车设计平台</p>
+        <p>ProtoCart Lab 是一个将底盘参数配置、AI 辅助理解、外壳生成设计与制造输出整合在一起的模型小车设计平台。它不是传统 CAD 软件的简化版，也不是单纯的 AI 生图工具。平台的目标，是帮助没有系统车辆工程背景的用户，从一个想法出发，逐步完成底盘方案建立、参数调整、结构理解、外壳设计与模型输出。</p>
+        <p>在这里，你可以先描述自己的任务目标，例如运输、巡检、展示或课程验证；系统会基于你的描述生成一组可用的底盘初始建议。之后，你可以继续在可视化界面中调整关键参数，并实时查看性能反馈。完成底盘后，还可以进入外壳设计模块，生成与底盘尺寸匹配的草图和外壳模型，最终导出用于展示、验证或 3D 打印的成果。</p>
+        <p>ProtoCart Lab 适合课程教学、毕业设计、创客活动、竞赛原型验证以及 FabLab 快速打样等场景。</p>
         <div class="grid">
-          <div class="card"><strong>适用人群</strong>学生、创客、课程项目与竞赛团队。</div>
-          <div class="card"><strong>使用目标</strong>快速完成方案，理解参数与结构的对应关系。</div>
+          <div class="card"><strong>它能做什么</strong>根据任务目标生成底盘初始方案<br>通过参数化方式调整底盘结构<br>实时反馈关键性能表现<br>使用 AI 生成外壳草图与模型<br>导出模型和工程图进入制造环节</div>
+          <div class="card"><strong>它适合谁</strong>没有系统机械设计背景的学生<br>需要做课程项目或毕业设计的创客用户<br>想快速验证小车概念方案的原型设计者<br>需要教学演示和结构说明的教师与助教</div>
+        </div>
+      </section>
+
+      <section id="quick">
+        <span class="tag">快速开始</span>
+        <h2>10 分钟完成你的第一个小车方案</h2>
+        <p>第一次使用 ProtoCart Lab，建议按照下面的顺序完成一个基础方案。</p>
+        <div class="steps">
+          <div class="step"><span>1</span><div>输入设计目标：先用一句自然语言描述你想做什么样的小车。建议写清楚用途、场景、速度倾向、载重需求和稳定性要求。<br>示例：“我想做一辆适合校园运送快递的小车，续航优先，载重中等，希望运行稳定，整体风格简洁。”</div></div>
+          <div class="step"><span>2</span><div>获取 AI 预设参数：系统会根据你的目标，生成一组可用的底盘初始参数。这些参数不是最终结果，而是帮助你快速进入有效设计区间的起点。</div></div>
+          <div class="step"><span>3</span><div>细化底盘方案：进入底盘设计页面后，你可以调整车长、宽度、轴距等关键变量，并通过三维模型和性能指标观察变化结果。</div></div>
+          <div class="step"><span>4</span><div>进入外壳设计：当底盘结构基本确定后，进入外壳设计页。平台会自动继承底盘尺寸与设计目标，帮助你生成更匹配的外壳方案。</div></div>
+          <div class="step"><span>5</span><div>导出成果：完成设计后，可以导出模型文件、工程图和关键配置结果，用于展示、沟通、3D 打印或打样验证。</div></div>
+        </div>
+        <div class="note" style="margin-top:12px;">
+          快速提示：不确定参数时，先用 AI 预设，不要一开始手动细调全部内容。底盘优先确定结构逻辑，外壳再做风格表达。先保证“可用”，再追求“更优”。有疑问时可直接使用 AI 助手询问参数含义或调整建议。
         </div>
       </section>
 
       <section id="workflow">
-        <span class="tag">流程</span>
-        <h2>设计流程</h2>
-        <div class="table">
-          <strong>1 输入需求</strong><span>描述用途、场景、载重、续航等目标。</span>
-          <strong>2 智能预设</strong><span>AI 推荐参数并自动预填。</span>
-          <strong>3 结构调参</strong><span>调整关键参数并观察模型变化。</span>
-          <strong>4 导出成果</strong><span>导出模型与工图，用于后续制造或展示。</span>
+        <span class="tag">完整工作流</span>
+        <h2>从想法到可制造方案的完整流程</h2>
+        <p>ProtoCart Lab 将原本分散在多个工具中的小车设计任务，整理为一条连续流程。你不需要先学会复杂建模，再自己摸索结构关系；平台会帮助你逐步把需求转化为可配置、可理解、可输出的方案。</p>
+        <div class="steps">
+          <div class="step"><span>01</span><div>输入需求：描述你的用途、使用场景、性能目标和风格偏好。平台会先理解你要解决的问题，而不是要求你直接填写大量工程参数。</div></div>
+          <div class="step"><span>02</span><div>AI 生成初始底盘建议：系统根据你的需求，自动生成一组底盘参数建议，包括尺寸、轴距、轮胎、动力与载荷相关设置，帮助你快速进入合理的设计范围。</div></div>
+          <div class="step"><span>03</span><div>交互式细化底盘：你可以通过参数面板继续调节底盘，并实时查看三维模型、工程指标与性能反馈。这个阶段的重点不是建模，而是理解参数变化与结构结果之间的关系。</div></div>
+          <div class="step"><span>04</span><div>生成外壳草图与模型：平台读取底盘尺寸和目标描述后，辅助生成外壳草图，再进一步生成与底盘匹配的外壳模型。这样可以减少外观与结构脱节的问题。</div></div>
+          <div class="step"><span>05</span><div>导出与打样：最终成果可以导出为模型文件和工程图，用于 3D 打印、FabLab 打样、课程展示或后续设计沟通。</div></div>
+        </div>
+        <div class="note" style="margin-top:12px;">
+          ProtoCart Lab 的价值不在于替代专业工程软件，而在于为非专业用户提供一条更清晰、更连续、更容易理解的小车方案生成路径。
         </div>
       </section>
 
-      <section id="params">
-        <span class="tag">参数体系</span>
-        <h2>参数说明</h2>
-        <p>参数分为车身、轮胎与悬挂、动力系统、附属载荷四大类。每项参数支持基础与高级设定。</p>
-        <div class="grid">
-          <div class="card"><strong>车身</strong>车身总长、载物台宽度、轴距、底盘高度。</div>
-          <div class="card"><strong>轮胎与悬挂</strong>轮胎宽度、轮毂直径、悬挂类型与硬度。</div>
-          <div class="card"><strong>动力系统</strong>电机功率、电池容量、驱动方式与调节。</div>
-          <div class="card"><strong>附属载荷</strong>载重能力、挡板尺寸、附加模块。</div>
-        </div>
-      </section>
-
-      <section id="model">
-        <span class="tag">模型规范</span>
-        <h2>模型准备建议</h2>
+      <section id="chassis">
+        <span class="tag">底盘设计基础</span>
+        <h2>先理解底盘，再开始调整参数</h2>
+        <p>在小车设计中，底盘是最核心的结构平台。它决定轮组布局、动力模块安装方式、承载空间和整体稳定性。不同用途的小车，虽然外观可能差异很大，但设计判断通常都要先回到底盘结构上。</p>
+        <p>ProtoCart Lab 采用参数化方式表达底盘设计。你不需要从零绘制复杂三维模型，而是通过调整关键变量来逐步形成方案。这样做的目的，不只是提高效率，更是为了让结构关系变得可见、可理解、可推演。</p>
+        <p>在底盘设计过程中，建议优先关注以下问题：</p>
         <ul class="list">
-          <li>推荐使用 GLB/GLTF 格式，确保结构命名统一。</li>
-          <li>同类型结构保持一致命名与层级。</li>
-          <li>导出前确认模型尺度与坐标方向。</li>
+          <li>我的小车主要服务什么任务</li>
+          <li>我更看重灵活、稳定还是承载</li>
+          <li>这个任务是否需要较大的安装空间</li>
+          <li>参数变化会怎样影响整体表现</li>
         </ul>
+        <h3>为什么先做底盘，再做外壳</h3>
+        <p>底盘决定了可用尺寸、轮组位置、动力布局和承载边界。外壳设计必须建立在这些结构条件之上，否则容易出现比例失调、无法装配或难以打印的问题。</p>
+        <h3>为什么平台用参数而不是复杂建模</h3>
+        <p>因为大多数非专业用户的问题不在于“不会画一个模型”，而在于“不知道该改哪个变量，以及改完会发生什么”。参数化方式能更直接地表达结构逻辑，也更适合教学、实验和原型验证场景。</p>
       </section>
 
-      <section id="analysis">
-        <span class="tag">分析</span>
-        <h2>性能与受力分析</h2>
-        <p>平台提供性能指标与受力分布的简化分析，用于趋势判断与教学展示。</p>
-        <div class="grid">
-          <div class="card"><strong>性能指标</strong>载货能力、续航里程、爬坡扭矩、稳定性。</div>
-          <div class="card"><strong>受力分析</strong>前后轴、四轮与底盘载荷分布。</div>
-        </div>
+      <section id="dictionary">
+        <span class="tag">参数词典</span>
+        <h2>底盘参数词典</h2>
+        <p>下面这些参数，是底盘设计中最常见、也最值得理解的核心变量。</p>
+        <div class="card"><strong>车身总长</strong>车身总长表示整车在前后方向上的整体尺寸范围。它会影响安装空间、整体比例和使用场景适应性。一般来说，车身总长更大时，更容易容纳更多部件或载荷，但整车会更占空间，也可能降低灵活性。车身总长较小时，更适合轻量、小型和灵活任务。</div>
+        <div class="card"><strong>载物台宽度</strong>载物台宽度表示可用于承载部件、设备或货物的平台横向空间。它会影响安装布局、稳定性和可用承载面积。宽度增加时，通常能带来更大的横向支撑和更稳定的站姿，但也会增加占地与材料使用。宽度较小时，整车更紧凑，但布局会受限。</div>
+        <div class="card"><strong>轴距</strong>轴距是前后轮中心之间的距离，是影响底盘姿态和行驶特性的关键参数之一。轴距较大时，整车直线稳定性通常更好，也更有利于形成稳定的承载平台，但转向灵活性可能下降。轴距较小时，转向更敏捷，更适合紧凑空间，但稳定性可能减弱。</div>
+        <div class="card"><strong>轮距</strong>轮距是左右轮之间的横向距离。它决定车辆横向支撑范围，并影响过弯稳定性和整体比例。轮距增大时，横向稳定性一般更好；轮距减小时，车体会更窄，更容易通过狭窄区域，但侧向稳定性会下降。</div>
+        <div class="card"><strong>轮胎尺寸</strong>轮胎尺寸影响离地能力、通过性、接地状态和整车视觉风格。不同轮胎适合不同路况和功能目标。</div>
+        <div class="card"><strong>动力配置</strong>动力配置决定整车的驱动能力与性能边界。更高的动力通常意味着更好的加速与爬坡表现，但也可能带来能耗增加和结构匹配问题。</div>
+        <div class="card"><strong>载荷配置</strong>载荷配置用于描述小车需要承受的重量和布置需求。载荷越明确，平台越能生成更合理的尺寸和性能建议。</div>
+        <div class="note" style="margin-top:12px;">参数使用提示：不要孤立地看待某一个参数。底盘设计中，大多数变量都是联动的。调整轴距时，可能同时影响稳定性、车长和空间布局；调整宽度时，也可能改变承载表现和整体比例。</div>
+      </section>
+
+      <section id="metrics">
+        <span class="tag">性能指标说明</span>
+        <h2>怎么看懂性能反馈</h2>
+        <p>ProtoCart Lab 不只是让你改参数，也会用指标帮助你理解当前方案的表现。性能指标不是绝对结果，而是用于比较方案、判断方向和辅助决策的参考。</p>
+        <div class="card"><strong>载货能力</strong>载货能力反映当前底盘对承载任务的适应程度。它与底盘尺寸、承载空间、结构布局和动力设定等因素有关。如果你的目标是运输或设备承载，应该优先关注这一项。</div>
+        <div class="card"><strong>续航里程</strong>续航里程反映在当前设计条件下，小车可持续运行的大致能力。它通常与动力负载、整体尺寸和任务设定相关。如果你的任务强调长时间运行或较少补能，应该适当提高对续航的关注。</div>
+        <div class="card"><strong>爬坡扭矩</strong>爬坡扭矩体现小车在复杂地形或坡道场景中的动力适应性。它与动力配置、轮组条件和整体负载密切相关。如果小车面向室外验证、坡道通行或通过性任务，这项很重要。</div>
+        <div class="card"><strong>稳定性</strong>稳定性反映底盘在运行过程中的姿态可靠性和结构平衡水平。它受轴距、轮距、宽度、重心趋势等因素影响。如果你的设计目标是运输、巡检、展示或教学演示，稳定性通常是最优先考虑的指标之一。</div>
+        <div class="note" style="margin-top:12px;">指标阅读建议：指标不要单独看，要结合你的任务目标一起判断。没有“所有指标都最高”的方案，设计本身就是权衡。先确定主目标，再接受合理的次级折中。同一个用途下，多比较两到三个方案，比只盯一个方案更有帮助。</div>
+      </section>
+
+      <section id="ai">
+        <span class="tag">AI 助手使用指南</span>
+        <h2>把 AI 助手当成你的设计搭档</h2>
+        <p>AI 助手不是替你完成所有设计决策，而是帮助你更快理解参数、缩小选择范围，并解释当前方案为什么会产生这样的结果。你可以把它当作一个会说人话的结构助教。当你不确定参数怎么改、为什么指标变化、某个方案适不适合当前任务时，都可以向它提问。</p>
+        <div class="card"><strong>你可以这样问</strong>这个方案怎样提高载货能力？<br>我想让小车更稳定，优先改哪些参数？<br>为什么我的方案爬坡能力偏低？<br>这个底盘更适合运输还是展示？<br>轴距调大以后会带来什么影响？<br>这个任务场景下，推荐先关注哪些指标？</div>
+        <div class="card"><strong>AI 助手能帮你做什么</strong>解释参数的意义<br>帮你理解指标变化<br>根据任务目标给出调整建议<br>把抽象设计问题拆成一步一步的修改路径<br>帮你从“试错”转向“有依据地调整”</div>
+        <div class="note" style="margin-top:12px;">使用建议：先告诉 AI 你的任务目标，再描述你遇到的问题。输入越具体，建议通常越有帮助。示例：“我要做一辆校园运送小车，希望更稳定一些，现在载货能力还可以，但转向太灵活不够稳，我应该先改什么？”</div>
+      </section>
+
+      <section id="shell">
+        <span class="tag">外壳设计指南</span>
+        <h2>让外壳设计和底盘真正匹配</h2>
+        <p>ProtoCart Lab 的外壳设计不是脱离结构的自由生图，而是建立在底盘尺寸和设计目标基础上的表达流程。这样做的好处，是让外壳造型更容易和底盘比例匹配，也更接近后续展示与制造需求。</p>
+        <h3>先写清楚外壳目标</h3>
+        <p>好的外壳描述，通常包含这些信息：风格方向、造型特征、线条倾向、制造方式、是否需要简洁、封闭、可打印。示例：“越野风格，硬朗线条，简洁几何感，适合 3D 打印，顶部平整，整体偏工具化。”</p>
+        <h3>为什么要有反向提示词</h3>
+        <p>反向提示词用于告诉系统不要生成哪些内容。对于小车外壳来说，通常需要排除轮胎、底盘、悬挂、电机等已经在底盘中存在的部分，避免生成结果把这些结构错误包进去。示例反向提示词：“轮胎、轮毂、底盘、悬挂、传动、电机、外露机械部件”。</p>
+        <h3>先草图，后模型</h3>
+        <p>平台通常会先生成草图，再进入外壳模型生成。这样做是为了先确定风格方向，再继续推进到三维表达，减少直接生成模型带来的不确定性。</p>
+        <h3>如何判断外壳是否合适</h3>
+        <p>一个好的外壳方案，不只要看起来好看，还应该满足以下几点：与底盘比例协调、不遮挡关键功能区域、具备基本可制造性、风格与任务目标一致。</p>
+        <div class="note" style="margin-top:12px;">外壳设计提示：风格词尽量具体，不要只写“好看”“高级”。先保证比例匹配，再追求细节丰富。对教学或打印场景，建议优先简洁、清晰、易成型的方案。生成结果不满意时，优先改描述逻辑，不要只重复生成。</div>
       </section>
 
       <section id="export">
-        <span class="tag">导出</span>
-        <h2>导出与应用</h2>
-        <p>可导出模型参数 JSON、三视图工图与结构截图，支持项目申报与课程作业。</p>
+        <span class="tag">导出与打样</span>
+        <h2>从数字方案走向实体验证</h2>
+        <p>完成设计后，你可以将结果导出到后续展示、沟通或制造环节。ProtoCart Lab 支持把方案从“屏幕中的概念”转为“可以继续推进的成果”。</p>
+        <div class="card"><strong>导出模型</strong>适合继续查看三维结果、进行展示，或作为后续制造与修改的基础文件。</div>
+        <div class="card"><strong>导出工程图</strong>适合沟通结构方案、标注关键尺寸、用于课程汇报或制造说明。</div>
+        <div class="card"><strong>进入 FabLab / 3D 打印</strong>适合快速打样、原型验证和教学展示。尤其当你需要检验比例、结构安装关系或实体外观效果时，打印是很有价值的下一步。</div>
+        <div class="note" style="margin-top:12px;">导出前建议检查：底盘尺寸是否已经基本稳定；外壳比例是否和底盘匹配；是否还存在明显结构冲突；当前方案是否已经满足主要任务目标。</div>
+      </section>
+
+      <section id="cases">
+        <span class="tag">示例案例</span>
+        <h2>你可以这样使用 ProtoCart Lab</h2>
+        <div class="case"><strong>案例一：校园配送小车</strong>任务目标：设计一辆适合校园内短距离运输的小车，要求续航优先、载重中等、运行平稳。<br>设计思路：先通过自然语言输入获得底盘初始建议，再重点调节轴距和平台宽度，让底盘更适合承载与稳定运行。完成底盘后，外壳部分采用简洁、封闭、可打印的描述方式。<br>关注重点：稳定性、载货能力、续航里程。<br>外壳描述示例：“简洁封闭式配送小车外壳，几何感明确，适合 3D 打印，顶部平整，前部简洁。”</div>
+        <div class="case"><strong>案例二：课程展示模型车</strong>任务目标：用于课堂讲解和展示，希望结构清晰，参数变化容易说明，外观简洁。<br>设计思路：底盘优先选择容易观察结构关系的方案，重点突出车长、轴距、宽度对稳定性和布局的影响。外壳设计保持简洁，避免过度遮挡内部逻辑。<br>关注重点：结构可解释性、参数关系展示、输出与打印便捷性。<br>外壳描述示例：“简洁教学展示风格，外壳开放感适中，保留部分结构可见性，造型克制，适合展示。”</div>
+        <div class="case"><strong>案例三：越野风格概念小车</strong>任务目标：做一个偏概念表达的小车方案，希望有更强的造型特征和通过感。<br>设计思路：底盘部分先保证轮组关系和整体比例合理，再通过外壳设计强化风格表达。外壳描述突出硬朗、抬高、厚重、越野等关键词。<br>关注重点：外观风格、比例协调、底盘与外壳统一感。<br>外壳描述示例：“越野风格，硬朗切面，轮拱明显，几何外壳，带轻型探险感，适合概念展示与 3D 打印。”</div>
       </section>
 
       <section id="faq">
         <span class="tag">常见问题</span>
         <h2>常见问题</h2>
-        <ul class="list">
-          <li>AI 预填时间较长：可能是模型繁忙，可稍后重试。</li>
-          <li>模型未加载：请确认后端服务运行与模型路径正确。</li>
-          <li>参数无响应：确认模型命名与映射是否一致。</li>
-        </ul>
+        <div class="card"><strong>Q1 为什么我还没开始调参数，就先让我写设计目标？</strong>因为平台希望先理解你的任务，再给出更合适的底盘起点。这样可以减少盲目调参，提高进入有效设计区间的效率。</div>
+        <div class="card"><strong>Q2 AI 预设参数是不是最终结果？</strong>不是。它是一组起始建议，用来帮你更快开始。真正的方案仍然需要你结合目标继续调整。</div>
+        <div class="card"><strong>Q3 为什么外壳设计要继承底盘尺寸？</strong>因为外壳必须和底盘结构匹配。继承尺寸可以减少比例失衡、装配冲突和不可制造的问题。</div>
+        <div class="card"><strong>Q4 为什么有些参数改动后，多个指标都会变化？</strong>因为底盘结构是联动的。一个参数的变化，往往会同时影响空间布局、稳定性和性能表现。</div>
+        <div class="card"><strong>Q5 为什么平台不直接让我从零建模？</strong>因为这个平台的重点不是替代专业 CAD，而是帮助你更快理解结构、完成配置并输出结果。</div>
+        <div class="card"><strong>Q6 外壳生成出来不好看怎么办？</strong>先检查描述是否足够具体，再调整风格关键词和反向提示词。通常不是“多生成几次”最有效，而是“把意图写得更清楚”。</div>
+        <div class="card"><strong>Q7 什么时候适合导出模型？</strong>当底盘主要尺寸已经确定、性能方向基本符合目标、外壳比例也比较协调时，就可以导出。</div>
       </section>
     </main>
   </div>

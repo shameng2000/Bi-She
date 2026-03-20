@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProtoCart Lab | 信息架构与用户流程图</title>
+  <style>
+    :root {
+      --bg: #0b101d;
+      --panel: #111a2b;
+      --line: #1f2a3f;
+      --text: #e6edf7;
+      --muted: #98a8c7;
+      --accent: #4cc9f0;
+      --accent-2: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(900px 700px at 80% -10%, rgba(76, 201, 240, 0.12), transparent), var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 20px 6vw 10px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .wrap {
+      padding: 14px 6vw 40px;
+      display: grid;
+      gap: 24px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .card h2 {
+      margin: 4px 8px 12px;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .hint {
+      margin: 4px 8px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ProtoCart Lab 信息架构图 与 用户流程图</h1>
+    <p>说明：打开此页面后可右键保存 SVG 或截图导出图片。</p>
+  </header>
+
+  <div class="wrap">
+    <section class="card">
+      <h2>信息架构图</h2>
+      <div class="hint">站点层级与模块关系</div>
+      <svg viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3b82f6" />
+            <stop offset="1" stop-color="#4cc9f0" />
+          </linearGradient>
+          <style>
+            .box { fill: #0f172a; stroke: #2b3a55; stroke-width: 2; rx: 14; }
+            .box-accent { fill: url(#g1); stroke: #2b3a55; stroke-width: 2; rx: 14; }
+            .title { fill: #e6edf7; font-size: 16px; font-weight: 600; }
+            .sub { fill: #98a8c7; font-size: 13px; }
+            .line { stroke: #2b3a55; stroke-width: 2; }
+          </style>
+        </defs>
+
+        <!-- Root -->
+        <rect class="box-accent" x="480" y="20" width="240" height="60" />
+        <text class="title" x="600" y="55" text-anchor="middle">首页</text>
+
+        <!-- Level 2 -->
+        <rect class="box" x="120" y="140" width="240" height="80" />
+        <text class="title" x="240" y="175" text-anchor="middle">学习文档</text>
+        <text class="sub" x="240" y="198" text-anchor="middle">11 个锚点文档中心</text>
+
+        <rect class="box" x="480" y="140" width="240" height="80" />
+        <text class="title" x="600" y="175" text-anchor="middle">底盘设计</text>
+        <text class="sub" x="600" y="198" text-anchor="middle">参数化 + 3D 可视化</text>
+
+        <rect class="box" x="840" y="140" width="240" height="80" />
+        <text class="title" x="960" y="175" text-anchor="middle">外壳设计</text>
+        <text class="sub" x="960" y="198" text-anchor="middle">AI 草图 + 3D 外壳</text>
+
+        <!-- Level 2 extra -->
+        <rect class="box" x="480" y="250" width="240" height="70" />
+        <text class="title" x="600" y="286" text-anchor="middle">我的</text>
+        <text class="sub" x="600" y="306" text-anchor="middle">项目与导出记录</text>
+
+        <!-- Connections -->
+        <line class="line" x1="600" y1="80" x2="240" y2="140" />
+        <line class="line" x1="600" y1="80" x2="600" y2="140" />
+        <line class="line" x1="600" y1="80" x2="960" y2="140" />
+        <line class="line" x1="600" y1="80" x2="600" y2="250" />
+
+        <!-- Backend -->
+        <rect class="box" x="140" y="380" width="920" height="120" />
+        <text class="title" x="600" y="420" text-anchor="middle">后端服务（server.js）</text>
+        <text class="sub" x="600" y="447" text-anchor="middle">/api/chat /api/recommend /api/audit /api/shell/image /api/shell/model /api/shell/fetch</text>
+        <text class="sub" x="600" y="470" text-anchor="middle">AI：DeepSeek / 即梦 / Seed3D</text>
+
+        <line class="line" x1="600" y1="220" x2="600" y2="380" />
+        <line class="line" x1="960" y1="220" x2="800" y2="380" />
+        <line class="line" x1="240" y1="220" x2="400" y2="380" />
+
+        <!-- Assets -->
+        <rect class="box" x="120" y="540" width="320" height="90" />
+        <text class="title" x="280" y="575" text-anchor="middle">模型与资源</text>
+        <text class="sub" x="280" y="598" text-anchor="middle">5glb.glb / shell-assets / hero.jpg</text>
+
+        <rect class="box" x="480" y="540" width="240" height="90" />
+        <text class="title" x="600" y="575" text-anchor="middle">脚本</text>
+        <text class="sub" x="600" y="598" text-anchor="middle">scripts/jimeng_api.py</text>
+
+        <rect class="box" x="760" y="540" width="320" height="90" />
+        <text class="title" x="920" y="575" text-anchor="middle">静态页面</text>
+        <text class="sub" x="920" y="598" text-anchor="middle">index / docs / 1 / shell / me</text>
+
+        <line class="line" x1="600" y1="500" x2="280" y2="540" />
+        <line class="line" x1="600" y1="500" x2="600" y2="540" />
+        <line class="line" x1="600" y1="500" x2="920" y2="540" />
+      </svg>
+    </section>
+
+    <section class="card">
+      <h2>用户流程图</h2>
+      <div class="hint">从进入平台到输出与打样</div>
+      <svg viewBox="0 0 1200 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4cc9f0" />
+            <stop offset="1" stop-color="#3b82f6" />
+          </linearGradient>
+          <style>
+            .box { fill: #0f172a; stroke: #2b3a55; stroke-width: 2; rx: 14; }
+            .box-accent { fill: url(#g2); stroke: #2b3a55; stroke-width: 2; rx: 14; }
+            .title { fill: #e6edf7; font-size: 15px; font-weight: 600; }
+            .sub { fill: #98a8c7; font-size: 12px; }
+            .line { stroke: #2b3a55; stroke-width: 2; marker-end: url(#arrow); }
+          </style>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 10 3, 0 6" fill="#2b3a55" />
+          </marker>
+        </defs>
+
+        <!-- Steps -->
+        <rect class="box-accent" x="40" y="100" width="200" height="80" />
+        <text class="title" x="140" y="135" text-anchor="middle">进入平台</text>
+        <text class="sub" x="140" y="156" text-anchor="middle">首页/学习文档</text>
+
+        <rect class="box" x="270" y="100" width="200" height="80" />
+        <text class="title" x="370" y="135" text-anchor="middle">输入需求</text>
+        <text class="sub" x="370" y="156" text-anchor="middle">自然语言描述</text>
+
+        <rect class="box" x="500" y="100" width="200" height="80" />
+        <text class="title" x="600" y="135" text-anchor="middle">AI 预设参数</text>
+        <text class="sub" x="600" y="156" text-anchor="middle">推荐起点</text>
+
+        <rect class="box" x="730" y="100" width="200" height="80" />
+        <text class="title" x="830" y="135" text-anchor="middle">底盘设计</text>
+        <text class="sub" x="830" y="156" text-anchor="middle">参数调节 + 3D</text>
+
+        <rect class="box" x="960" y="100" width="200" height="80" />
+        <text class="title" x="1060" y="135" text-anchor="middle">外壳设计</text>
+        <text class="sub" x="1060" y="156" text-anchor="middle">草图 + 3D 外壳</text>
+
+        <rect class="box" x="730" y="240" width="200" height="80" />
+        <text class="title" x="830" y="275" text-anchor="middle">合体预览</text>
+        <text class="sub" x="830" y="296" text-anchor="middle">外壳 + 底盘</text>
+
+        <rect class="box" x="960" y="240" width="200" height="80" />
+        <text class="title" x="1060" y="275" text-anchor="middle">导出成果</text>
+        <text class="sub" x="1060" y="296" text-anchor="middle">模型 / 工图 / 配置</text>
+
+        <rect class="box" x="960" y="380" width="200" height="80" />
+        <text class="title" x="1060" y="415" text-anchor="middle">打样验证</text>
+        <text class="sub" x="1060" y="436" text-anchor="middle">3D 打印 / FabLab</text>
+
+        <!-- Lines -->
+        <line class="line" x1="240" y1="140" x2="270" y2="140" />
+        <line class="line" x1="470" y1="140" x2="500" y2="140" />
+        <line class="line" x1="700" y1="140" x2="730" y2="140" />
+        <line class="line" x1="930" y1="140" x2="960" y2="140" />
+        <line class="line" x1="830" y1="180" x2="830" y2="240" />
+        <line class="line" x1="1060" y1="180" x2="1060" y2="240" />
+        <line class="line" x1="1060" y1="320" x2="1060" y2="380" />
+
+        <!-- Optional loop -->
+        <path d="M 830 240 C 680 260, 680 120, 730 120" fill="none" stroke="#2b3a55" stroke-width="2" marker-end="url(#arrow)" />
+        <text class="sub" x="640" y="220">迭代调整</text>
+      </svg>
+    </section>
+  </div>
+</body>
+</html>
