@@ -1,4 +1,4 @@
-import base64
+﻿import base64
 import json
 import os
 import re
@@ -6,9 +6,12 @@ import time
 import urllib.parse
 import urllib.request
 
-from volcenginesdkcore import ApiClient, Configuration
-from volcenginesdkcore.signv4 import SignerV4
-from volcenginesdkcore.universal import UniversalApi, UniversalInfo
+try:
+    from volcenginesdkcore.signv4 import SignerV4
+except Exception:
+    import subprocess, sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "volcengine"])
+    from volcenginesdkcore.signv4 import SignerV4
 
 
 def get_env(name, default=None):
@@ -22,7 +25,13 @@ def build_client():
     ak = get_env("VOLC_ACCESS_KEY")
     sk = get_env("VOLC_SECRET_KEY")
     if not ak or not sk:
-        raise RuntimeError("VOLC_ACCESS_KEY / VOLC_SECRET_KEY 未设置。")
+        raise RuntimeError("VOLC_ACCESS_KEY / VOLC_SECRET_KEY 未配置")
+
+    try:
+        from volcenginesdkcore import ApiClient, Configuration
+        from volcenginesdkcore.universal import UniversalApi
+    except Exception as exc:
+        raise RuntimeError("缺少 volcenginesdkcore 依赖，请安装 volcengine") from exc
 
     cfg = Configuration()
     cfg.ak = ak
@@ -71,6 +80,7 @@ def submit_task(api, prompt, req_key, extra=None):
             body_dict=payload,
             method="POST",
         )
+    from volcenginesdkcore.universal import UniversalInfo
     info = UniversalInfo(
         method="POST",
         service="cv",
@@ -89,6 +99,7 @@ def query_task(api, task_id, req_key):
             body_dict={"req_key": req_key, "task_id": task_id},
             method="POST",
         )
+    from volcenginesdkcore.universal import UniversalInfo
     info = UniversalInfo(
         method="GET",
         service="cv",
