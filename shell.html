@@ -491,32 +491,48 @@ createApp({
             modelDims.value = { length: '-', width: '-', height: '-' };
             startTimer();
             try {
-                const resp = await fetch(`${API_BASE}/api/shell/model`, {
+                const submitResp = await fetch(`${API_BASE}/api/shell/model/submit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         imageBase64: imageBase64.value || undefined,
                         imageUrl: imageBase64.value ? undefined : imageDataUrl.value,
-                        poll_interval: 8,
-                        poll_limit: 80
                     })
                 });
-                const data = await resp.json();
-                if (!resp.ok) throw new Error(data.error || '模型生成失败');
-                modelFileUrl.value = data.fileUrl || '';
-                modelPreviewUrl.value = data.previewUrl || '';
-                if (!modelFileUrl.value) {
-                    throw new Error('Seed3D 未返回模型文件地址');
+                const submitData = await submitResp.json().catch(() => ({}));
+                if (!submitResp.ok) throw new Error(submitData.error || '模型提交失败');
+                const jobId = submitData.jobId;
+                if (!jobId) throw new Error('Seed3D 未返回任务 ID');
+
+                const maxPoll = 80;
+                const pollInterval = 8;
+                for (let i = 0; i < maxPoll; i += 1) {
+                    await new Promise((r) => setTimeout(r, pollInterval * 1000));
+                    const statusResp = await fetch(`${API_BASE}/api/shell/model/status?jobId=${encodeURIComponent(jobId)}`);
+                    const statusData = await statusResp.json().catch(() => ({}));
+                    if (!statusResp.ok) throw new Error(statusData.error || '模型状态查询失败');
+
+                    const status = String(statusData.status || '').toLowerCase();
+                    if (status === 'succeeded') {
+                        modelFileUrl.value = statusData.fileUrl || '';
+                        modelPreviewUrl.value = statusData.previewUrl || '';
+                        if (!modelFileUrl.value) throw new Error('Seed3D 已完成，但未返回模型文件地址');
+                        await nextTick();
+                        const lowerUrl = modelFileUrl.value.toLowerCase();
+                        if (!lowerUrl.includes('.glb') && !lowerUrl.includes('.gltf') && !lowerUrl.includes('.obj')) {
+                            modelPreviewError.value = '模型格式不是 GLB/GLTF/OBJ，无法在线预览，请下载后查看。';
+                            return;
+                        }
+                        initModelPreview();
+                        return;
+                    }
+                    if (status === 'failed') {
+                        throw new Error(statusData.error || 'Seed3D 任务失败');
+                    }
                 }
-                await nextTick();
-                const lowerUrl = modelFileUrl.value.toLowerCase();
-                if (!lowerUrl.includes('.glb') && !lowerUrl.includes('.gltf') && !lowerUrl.includes('.obj')) {
-                    modelPreviewError.value = '模型格式不是 GLB/GLTF/OBJ，无法在线预览，请下载后查看。';
-                    return;
-                }
-                initModelPreview();
+                throw new Error('模型生成超时，请稍后重试');
             } catch (err) {
-                modelError.value = err.message || String(err);
+                modelError.value = (err && err.message) ? err.message : String(err);
             } finally {
                 modelLoading.value = false;
                 stopTimer();

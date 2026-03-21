@@ -464,6 +464,8 @@ app.post('/api/shell/image', async (req, res) => {
 
 app.post('/api/shell/model', async (req, res) => {
   try {
+    // Backwards-compatible endpoint. This can take a long time and may hit
+    // hosting request timeouts. Prefer /api/shell/model/submit + /status.
     const imageUrl = req.body.imageUrl;
     const imageBase64 = req.body.imageBase64;
     if (!imageUrl && !imageBase64) {
@@ -522,6 +524,82 @@ app.post('/api/shell/model', async (req, res) => {
       hasImageUrl: Boolean(req.body && req.body.imageUrl),
       hasImageBase64: Boolean(req.body && req.body.imageBase64),
       model: req.body && req.body.model ? String(req.body.model) : undefined,
+      baseUrl: process.env.SEED3D_BASE_URL || 'https://ark.cn-beijing.volces.com',
+    });
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+app.post('/api/shell/model/submit', async (req, res) => {
+  try {
+    const imageUrl = req.body.imageUrl;
+    const imageBase64 = req.body.imageBase64;
+    if (!imageUrl && !imageBase64) {
+      res.status(400).json({ error: 'imageUrl or imageBase64 is required' });
+      return;
+    }
+    const imagePayload = imageUrl
+      ? { type: 'image_url', image_url: { url: imageUrl } }
+      : { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } };
+
+    const submit = await callSeed3d('/api/v3/contents/generations/tasks', {
+      model: req.body.model || 'doubao-seed3d-1-0-250928',
+      content: [
+        { type: 'text', text: '--subdivisionlevel medium --fileformat glb' },
+        imagePayload,
+      ],
+    });
+    const jobId = submit?.id || submit?.task_id || submit?.result?.id;
+    if (!jobId) throw new Error(`Missing task id in response: ${JSON.stringify(submit)}`);
+    res.json({ ok: true, jobId, raw: submit });
+  } catch (err) {
+    logError('shell_model_submit', err, {
+      hasImageUrl: Boolean(req.body && req.body.imageUrl),
+      hasImageBase64: Boolean(req.body && req.body.imageBase64),
+      model: req.body && req.body.model ? String(req.body.model) : undefined,
+      baseUrl: process.env.SEED3D_BASE_URL || 'https://ark.cn-beijing.volces.com',
+    });
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+app.get('/api/shell/model/status', async (req, res) => {
+  try {
+    const jobId = String(req.query.jobId || '').trim();
+    if (!jobId) {
+      res.status(400).json({ error: 'jobId is required' });
+      return;
+    }
+    const query = await callSeed3d(`/api/v3/contents/generations/tasks/${jobId}`, null, 'GET');
+    const status = query?.status || query?.result?.status || 'unknown';
+    const content = query?.content || query?.result?.content || {};
+    const lower = String(status).toLowerCase();
+
+    if (lower === 'succeeded') {
+      let fileUrl = pickModelFileUrl(content);
+      const previewUrl = pickPreviewUrl(content);
+      if (!fileUrl) {
+        throw new Error('Seed3D succeeded but file url is missing');
+      }
+      const publicBase = process.env.API_PUBLIC_BASE || `${req.protocol}://${req.get('host')}`;
+      const ext = getUrlExt(fileUrl);
+      if (ext === 'zip') {
+        const extracted = await extractZipToAssets(fileUrl, jobId);
+        fileUrl = `${publicBase}${extracted.relUrl}`;
+      }
+      res.json({ ok: true, jobId, status, fileUrl, previewUrl, raw: query });
+      return;
+    }
+
+    if (lower === 'failed') {
+      res.json({ ok: false, jobId, status, error: query?.error?.message || 'Seed3D job failed', raw: query });
+      return;
+    }
+
+    res.json({ ok: true, jobId, status, raw: query });
+  } catch (err) {
+    logError('shell_model_status', err, {
+      jobId: req.query && req.query.jobId ? String(req.query.jobId) : undefined,
       baseUrl: process.env.SEED3D_BASE_URL || 'https://ark.cn-beijing.volces.com',
     });
     res.status(500).json({ error: err.message || String(err) });
