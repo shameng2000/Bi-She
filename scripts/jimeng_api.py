@@ -85,14 +85,14 @@ def query_task(api, task_id, req_key):
     if get_env("JIMENG_USE_RAW", "0") == "1":
         return raw_request(
             action=get_env("JIMENG_QUERY_ACTION", "CVSync2AsyncGetResult"),
-            version=get_env("JIMENG_QUERY_VERSION", "2022-08-31"),
+            version=get_env("JIMENG_QUERY_VERSION", "2024-06-06"),
             body_dict={"req_key": req_key, "task_id": task_id},
             method="POST",
         )
     info = UniversalInfo(
         method="GET",
         service="cv",
-        version=get_env("JIMENG_QUERY_VERSION", "2022-08-31"),
+        version=get_env("JIMENG_QUERY_VERSION", "2024-06-06"),
         action=get_env("JIMENG_QUERY_ACTION", "CVSync2AsyncGetResult"),
         content_type=None,
     )
