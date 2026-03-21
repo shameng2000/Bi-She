@@ -23,8 +23,19 @@ app.use((req, res, next) => {
 app.use(
   '/assets/shell',
   express.static(ASSET_DIR, {
-    setHeaders: (res) => {
+    setHeaders: (res, filePath) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
+      const lower = String(filePath || '').toLowerCase();
+      if (lower.endsWith('.glb')) {
+        res.setHeader('Content-Type', 'model/gltf-binary');
+        res.setHeader('Content-Disposition', 'attachment; filename="shell.glb"');
+      } else if (lower.endsWith('.gltf')) {
+        res.setHeader('Content-Type', 'model/gltf+json');
+        res.setHeader('Content-Disposition', 'attachment; filename="shell.gltf"');
+      } else if (lower.endsWith('.obj')) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="shell.obj"');
+      }
     },
   })
 );
@@ -117,6 +128,15 @@ const extractZipToAssets = async (zipUrl, jobId) => {
   return { modelPath, relUrl: `/assets/shell/${rel}` };
 };
 
+const cacheRemoteModelToAssets = async (remoteUrl, jobId) => {
+  const ext = getUrlExt(remoteUrl);
+  const safeId = String(jobId || 'seed3d').replace(/[^a-zA-Z0-9_-]/g, '');
+  const fileName = `${safeId}.${ext || 'glb'}`;
+  const destPath = path.join(ASSET_DIR, fileName);
+  await downloadToFile(remoteUrl, destPath);
+  return { filePath: destPath, relUrl: `/assets/shell/${fileName}` };
+};
+
 const cleanBase64 = (raw) => {
   if (!raw) return '';
   let value = String(raw);
@@ -143,6 +163,10 @@ app.get('/api/shell/fetch', (req, res) => {
     'volces.com',
     'volcengine.com',
     'volcengineapi.com',
+    'bytedance.com',
+    'bytedance.net',
+    'byteimg.com',
+    'bytecdn.cn',
   ];
 
   const isAllowed = (rawUrl) => {
@@ -160,8 +184,10 @@ app.get('/api/shell/fetch', (req, res) => {
       res.status(403).json({ error: 'host not allowed' });
       return;
     }
-    https
-      .get(rawUrl, (remote) => {
+    const parsed = new URL(rawUrl);
+    const client = parsed.protocol === 'http:' ? http : https;
+    client
+      .get(parsed, (remote) => {
         if ([301, 302, 307, 308].includes(remote.statusCode)) {
           const location = remote.headers.location;
           if (!location) {
@@ -624,6 +650,9 @@ app.get('/api/shell/model/status', async (req, res) => {
       if (ext === 'zip') {
         const extracted = await extractZipToAssets(fileUrl, jobId);
         fileUrl = `${publicBase}${extracted.relUrl}`;
+      } else if (ext === 'glb' || ext === 'gltf' || ext === 'obj') {
+        const cached = await cacheRemoteModelToAssets(fileUrl, jobId);
+        fileUrl = `${publicBase}${cached.relUrl}`;
       }
       res.json({ ok: true, jobId, status, fileUrl, previewUrl, raw: query });
       return;
