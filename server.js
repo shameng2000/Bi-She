@@ -230,6 +230,19 @@ const callSeed3d = async (pathUrl, body, method = 'POST') => {
   return JSON.parse(text);
 };
 
+const callArkImages = async (prompt) => {
+  const model = process.env.SHELL_IMAGE_MODEL || 'doubao-seedream-3-0';
+  const size = process.env.SHELL_IMAGE_SIZE || '1024x576'; // 16:9
+  const payload = {
+    model,
+    prompt,
+    n: 1,
+    size,
+    response_format: 'url',
+  };
+  return callSeed3d('/api/v3/images/generations', payload, 'POST');
+};
+
 const pickUrlFromValue = (value) => {
   if (!value) return '';
   if (typeof value === 'string') return value;
@@ -406,15 +419,37 @@ app.post('/api/shell/image', async (req, res) => {
       res.status(400).json({ error: 'prompt is required' });
       return;
     }
-    const result = await runJimeng({
-      prompt,
-      req_key: req.body.req_key,
-      poll_interval: req.body.poll_interval || 5,
-      poll_limit: req.body.poll_limit || 24,
-      return_base64: true,
-      extra: { force_single: true, ...(req.body.extra || {}) },
-    });
-    res.json(result);
+
+    const provider = (process.env.SHELL_IMAGE_PROVIDER || 'jimeng').toLowerCase();
+    const allowFallback = String(process.env.SHELL_IMAGE_FALLBACK || '1') === '1';
+
+    if (provider === 'ark') {
+      const data = await callArkImages(prompt);
+      const url = data?.data?.[0]?.url;
+      if (!url) throw new Error(`ARK image response missing url: ${JSON.stringify(data)}`);
+      res.json({ ok: true, imageUrls: [url], raw: data });
+      return;
+    }
+
+    try {
+      const result = await runJimeng({
+        prompt,
+        req_key: req.body.req_key,
+        poll_interval: req.body.poll_interval || 5,
+        poll_limit: req.body.poll_limit || 24,
+        return_base64: true,
+        extra: { force_single: true, ...(req.body.extra || {}) },
+      });
+      res.json(result);
+      return;
+    } catch (jimengErr) {
+      if (!allowFallback) throw jimengErr;
+      if (!process.env.ARK_API_KEY) throw jimengErr;
+      const data = await callArkImages(prompt);
+      const url = data?.data?.[0]?.url;
+      if (!url) throw new Error(`ARK image response missing url: ${JSON.stringify(data)}`);
+      res.json({ ok: true, imageUrls: [url], raw: { fallback: 'ark', jimengError: String(jimengErr), ark: data } });
+    }
   } catch (err) {
     logError('shell_image', err, {
       hasPrompt: Boolean(req.body && req.body.prompt),
