@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: bi-she
+    env: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
