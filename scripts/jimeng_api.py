@@ -28,7 +28,8 @@ def raw_request(action, version, body_dict, method="POST"):
     headers = {"Host": host, "Content-Type": "application/json; charset=utf-8"}
 
     SignerV4.sign("/", method, headers, body, None, query, ak, sk, region, "cv", token)
-    url = "https://%s/?%s" % (host, urllib.parse.urlencode(query))
+    # Visual API examples use "https://{host}?Action=...&Version=..." (no "/?" path).
+    url = "https://%s?%s" % (host, urllib.parse.urlencode(query))
     data = body.encode("utf-8")
 
     req = urllib.request.Request(url, data=data, method=method)
