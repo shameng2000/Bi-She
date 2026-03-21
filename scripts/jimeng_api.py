@@ -5,6 +5,7 @@ import re
 import time
 import urllib.parse
 import urllib.request
+import urllib.error
 
 from volcenginesdkcore.signv4 import SignerV4
 
@@ -36,9 +37,17 @@ def raw_request(action, version, body_dict, method="POST"):
     for k, v in headers.items():
         req.add_header(k, v)
 
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        raw = resp.read().decode("utf-8")
-        return json.loads(raw)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw)
+    except urllib.error.HTTPError as err:
+        detail = ""
+        try:
+            detail = err.read().decode("utf-8")
+        except Exception:
+            detail = str(err)
+        raise RuntimeError(f"HTTP {err.code} {err.reason}: {detail}")
 
 
 def submit_task(api, prompt, req_key, extra=None):
