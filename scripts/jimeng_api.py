@@ -81,20 +81,31 @@ def submit_task(api, prompt, req_key, extra=None):
     return api.do_call(info, payload)
 
 
+def get_query_action_version():
+    action = get_env("JIMENG_QUERY_ACTION", "").strip()
+    version = get_env("JIMENG_QUERY_VERSION", "").strip()
+    if action != "CVSync2AsyncGetResult":
+        action = "CVSync2AsyncGetResult"
+    if not version:
+        version = "2022-08-31"
+    return action, version
+
+
 def query_task(api, task_id, req_key):
+    action, version = get_query_action_version()
     if get_env("JIMENG_USE_RAW", "0") == "1":
         return raw_request(
-            action=get_env("JIMENG_QUERY_ACTION", "CVSync2AsyncGetResult"),
-            version=get_env("JIMENG_QUERY_VERSION", "2024-06-06"),
+            action=action,
+            version=version,
             body_dict={"req_key": req_key, "task_id": task_id},
             method="POST",
         )
     info = UniversalInfo(
-        method="GET",
+        method="POST",
         service="cv",
-        version=get_env("JIMENG_QUERY_VERSION", "2024-06-06"),
-        action=get_env("JIMENG_QUERY_ACTION", "CVSync2AsyncGetResult"),
-        content_type=None,
+        version=version,
+        action=action,
+        content_type="application/json",
     )
     body = {"req_key": req_key, "task_id": task_id}
     return api.do_call(info, body)
