@@ -217,17 +217,30 @@ const callSeed3d = async (pathUrl, body, method = 'POST') => {
   const apiKey = process.env.ARK_API_KEY;
   if (!apiKey) throw new Error('Missing ARK_API_KEY');
   const baseUrl = process.env.SEED3D_BASE_URL || 'https://ark.cn-beijing.volces.com';
-  const res = await fetch(`${baseUrl}${pathUrl}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  if (!res.ok) throw new Error(`Seed3D API error ${res.status}: ${text}`);
-  return JSON.parse(text);
+  const timeoutMs = Number(process.env.ARK_TIMEOUT_MS || 60000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${baseUrl}${pathUrl}`, {
+      method,
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`Seed3D API error ${res.status}: ${text}`);
+    return JSON.parse(text);
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      throw new Error(`Seed3D request timed out after ${timeoutMs}ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 const callArkImages = async (prompt) => {
