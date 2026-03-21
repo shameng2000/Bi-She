@@ -8,6 +8,7 @@ import re
 import time
 import urllib.parse
 import urllib.request
+import urllib.error
 
 
 def get_env(name, default=None):
@@ -105,20 +106,28 @@ def raw_request(action, version, body_dict, method="POST"):
     token = get_env("VOLC_SESSION_TOKEN")
 
     query = {"Action": action, "Version": version}
-    body = json.dumps(body_dict, ensure_ascii=False)
+    is_get = str(method).upper() == "GET"
+    body = "" if is_get else json.dumps(body_dict, ensure_ascii=False)
     headers = {"Host": host, "Content-Type": "application/json; charset=utf-8"}
 
     sign_v4(method, "/", query, headers, body, ak, sk, region, "cv", token)
     url = "https://%s/?%s" % (host, urllib.parse.urlencode(query))
-    data = body.encode("utf-8")
+    data = None if is_get else body.encode("utf-8")
 
     req = urllib.request.Request(url, data=data, method=method)
     for k, v in headers.items():
         req.add_header(k, v)
 
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        raw = resp.read().decode("utf-8")
-        return json.loads(raw)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw)
+    except urllib.error.HTTPError as err:
+        try:
+            detail = err.read().decode("utf-8")
+        except Exception:
+            detail = ""
+        raise RuntimeError(f"HTTP {err.code} {err.reason}: {detail}")
 
 
 def submit_task(_api, prompt, req_key, extra=None):
@@ -138,7 +147,7 @@ def query_task(_api, task_id, req_key):
         action=get_env("JIMENG_QUERY_ACTION", "CVSync2AsyncGetResult"),
         version=get_env("JIMENG_QUERY_VERSION", "2022-08-31"),
         body_dict={"req_key": req_key, "task_id": task_id},
-        method="POST",
+        method="GET",
     )
 
 
