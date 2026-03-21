@@ -12,6 +12,9 @@ const app = express();
 const PORT = 3000;
 const ASSET_DIR = path.join(__dirname, 'shell-assets');
 
+// Render/Vercel sit behind proxies; respect x-forwarded-* for absolute URL building.
+app.set('trust proxy', true);
+
 app.use(express.json({ limit: '20mb' }));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -25,6 +28,7 @@ app.use(
   express.static(ASSET_DIR, {
     setHeaders: (res, filePath) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
       const lower = String(filePath || '').toLowerCase();
       if (lower.endsWith('.glb')) {
         res.setHeader('Content-Type', 'model/gltf-binary');
@@ -63,6 +67,13 @@ const ensureAssetsDir = async () => {
 };
 
 ensureAssetsDir();
+
+const getPublicBase = (req) => {
+  if (process.env.API_PUBLIC_BASE) return process.env.API_PUBLIC_BASE;
+  const forwarded = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  const proto = forwarded || 'https';
+  return `${proto}://${req.get('host')}`;
+};
 
 const normalizePath = (rawPath) => rawPath.split(path.sep).join('/');
 const stripQuery = (rawUrl) => rawUrl.split('?')[0].split('#')[0];
@@ -167,11 +178,14 @@ app.get('/api/shell/fetch', (req, res) => {
     'bytedance.net',
     'byteimg.com',
     'bytecdn.cn',
+    'onrender.com',
   ];
 
   const isAllowed = (rawUrl) => {
     const parsed = new URL(rawUrl);
     const hostname = parsed.hostname.toLowerCase();
+    const selfHost = String(req.get('host') || '').split(':')[0].toLowerCase();
+    if (hostname === selfHost) return true;
     return allowed.some((suffix) => hostname.endsWith(suffix));
   };
 
@@ -558,7 +572,7 @@ app.post('/api/shell/model', async (req, res) => {
         if (!fileUrl) {
           throw new Error('Seed3D succeeded but file url is missing');
         }
-        const publicBase = process.env.API_PUBLIC_BASE || `${req.protocol}://${req.get('host')}`;
+        const publicBase = getPublicBase(req);
         const ext = getUrlExt(fileUrl);
         if (ext === 'zip') {
           const extracted = await extractZipToAssets(fileUrl, jobId);
@@ -598,7 +612,7 @@ app.post('/api/shell/model/submit', async (req, res) => {
       return;
     }
 
-    const publicBase = process.env.API_PUBLIC_BASE || `${req.protocol}://${req.get('host')}`;
+    const publicBase = getPublicBase(req);
     let resolvedUrl = imageUrl ? String(imageUrl) : '';
     if (!resolvedUrl && imageBase64) {
       const saved = await saveBase64ImageToAssets(imageBase64, 'seed3d_input');
@@ -645,7 +659,7 @@ app.get('/api/shell/model/status', async (req, res) => {
       if (!fileUrl) {
         throw new Error('Seed3D succeeded but file url is missing');
       }
-      const publicBase = process.env.API_PUBLIC_BASE || `${req.protocol}://${req.get('host')}`;
+      const publicBase = getPublicBase(req);
       const ext = getUrlExt(fileUrl);
       if (ext === 'zip') {
         const extracted = await extractZipToAssets(fileUrl, jobId);
