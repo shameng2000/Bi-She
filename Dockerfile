@@ -17,6 +17,7 @@ COPY . .
 
 ENV PORT=3000
 ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHON_BIN="/opt/venv/bin/python"
 EXPOSE 3000
 
 CMD ["node", "server.js"]

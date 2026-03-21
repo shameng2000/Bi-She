@@ -177,7 +177,8 @@ app.get('/api/shell/fetch', (req, res) => {
 const runJimeng = (payload) =>
   new Promise((resolve, reject) => {
     const script = path.join(__dirname, 'scripts', 'jimeng_api.py');
-    const proc = spawn('python', [script], {
+    const pythonBin = process.env.PYTHON_BIN || 'python';
+    const proc = spawn(pythonBin, [script], {
       env: {
         ...process.env,
         JIMENG_USE_RAW: '0',
