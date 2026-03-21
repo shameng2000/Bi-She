@@ -231,7 +231,9 @@ const callSeed3d = async (pathUrl, body, method = 'POST') => {
 };
 
 const callArkImages = async (prompt) => {
-  const model = process.env.SHELL_IMAGE_MODEL || 'doubao-seedream-3-0';
+  // Default to a widely-available Seedream model on Ark.
+  // Model ids are versioned (e.g. doubao-seedream-4-0-250828).
+  const model = process.env.SHELL_IMAGE_MODEL || 'doubao-seedream-4-0-250828';
   const size = process.env.SHELL_IMAGE_SIZE || '1024x576'; // 16:9
   const payload = {
     model,
