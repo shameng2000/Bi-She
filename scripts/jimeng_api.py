@@ -6,9 +6,17 @@ import time
 import urllib.parse
 import urllib.request
 
-from volcenginesdkcore import ApiClient, Configuration
-from volcenginesdkcore.signv4 import SignerV4
-from volcenginesdkcore.universal import UniversalApi, UniversalInfo
+try:
+    from volcenginesdkcore import ApiClient, Configuration
+    from volcenginesdkcore.signv4 import SignerV4
+    from volcenginesdkcore.universal import UniversalApi, UniversalInfo
+except Exception:
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "volcengine==1.0.218"])
+    from volcenginesdkcore import ApiClient, Configuration
+    from volcenginesdkcore.signv4 import SignerV4
+    from volcenginesdkcore.universal import UniversalApi, UniversalInfo
 
 
 def get_env(name, default=None):
