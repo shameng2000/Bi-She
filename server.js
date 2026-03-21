@@ -117,6 +117,26 @@ const extractZipToAssets = async (zipUrl, jobId) => {
   return { modelPath, relUrl: `/assets/shell/${rel}` };
 };
 
+const cleanBase64 = (raw) => {
+  if (!raw) return '';
+  let value = String(raw);
+  if (value.startsWith('data:')) {
+    value = value.split(',', 2)[1] || '';
+  }
+  return value.replace(/\s+/g, '');
+};
+
+const saveBase64ImageToAssets = async (rawBase64, prefix = 'shell') => {
+  const base64 = cleanBase64(rawBase64);
+  if (!base64) throw new Error('Empty imageBase64');
+  const safeId = `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`.replace(/[^a-zA-Z0-9_-]/g, '');
+  const fileName = `${safeId}.jpg`;
+  const filePath = path.join(ASSET_DIR, fileName);
+  const buf = Buffer.from(base64, 'base64');
+  await fsp.writeFile(filePath, buf);
+  return { filePath, relUrl: `/assets/shell/${fileName}` };
+};
+
 app.get('/api/shell/fetch', (req, res) => {
   const allowed = [
     'tencentcos.cn',
@@ -551,9 +571,14 @@ app.post('/api/shell/model/submit', async (req, res) => {
       res.status(400).json({ error: 'imageUrl or imageBase64 is required' });
       return;
     }
-    const imagePayload = imageUrl
-      ? { type: 'image_url', image_url: { url: imageUrl } }
-      : { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } };
+
+    const publicBase = process.env.API_PUBLIC_BASE || `${req.protocol}://${req.get('host')}`;
+    let resolvedUrl = imageUrl ? String(imageUrl) : '';
+    if (!resolvedUrl && imageBase64) {
+      const saved = await saveBase64ImageToAssets(imageBase64, 'seed3d_input');
+      resolvedUrl = `${publicBase}${saved.relUrl}`;
+    }
+    const imagePayload = { type: 'image_url', image_url: { url: resolvedUrl } };
 
     const submit = await callSeed3d('/api/v3/contents/generations/tasks', {
       model: req.body.model || 'doubao-seed3d-1-0-250928',
