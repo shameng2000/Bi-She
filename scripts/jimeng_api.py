@@ -6,9 +6,7 @@ import time
 import urllib.parse
 import urllib.request
 
-from volcenginesdkcore import ApiClient, Configuration
 from volcenginesdkcore.signv4 import SignerV4
-from volcenginesdkcore.universal import UniversalApi, UniversalInfo
 
 
 def get_env(name, default=None):
@@ -18,29 +16,11 @@ def get_env(name, default=None):
     return value
 
 
-def build_client():
-    ak = get_env("VOLC_ACCESS_KEY")
-    sk = get_env("VOLC_SECRET_KEY")
-    if not ak or not sk:
-        raise RuntimeError("VOLC_ACCESS_KEY / VOLC_SECRET_KEY 未配置")
-
-    cfg = Configuration()
-    cfg.ak = ak
-    cfg.sk = sk
-    cfg.region = get_env("VOLC_REGION", "cn-north-1")
-    cfg.host = get_env("VOLC_HOST", "open.volcengineapi.com")
-    token = get_env("VOLC_SESSION_TOKEN")
-    if token:
-        cfg.session_token = token
-
-    return UniversalApi(ApiClient(cfg))
-
-
 def raw_request(action, version, body_dict, method="POST"):
     ak = get_env("VOLC_ACCESS_KEY")
     sk = get_env("VOLC_SECRET_KEY")
     region = get_env("VOLC_REGION", "cn-north-1")
-    host = get_env("VOLC_HOST", "open.volcengineapi.com")
+    host = get_env("VOLC_HOST", "visual.volcengineapi.com")
     token = get_env("VOLC_SESSION_TOKEN")
 
     query = {"Action": action, "Version": version}
@@ -64,21 +44,13 @@ def submit_task(api, prompt, req_key, extra=None):
     payload = {"req_key": req_key, "prompt": prompt}
     if isinstance(extra, dict):
         payload.update(extra)
-    if get_env("JIMENG_USE_RAW", "0") == "1":
-        return raw_request(
-            action=get_env("JIMENG_SUBMIT_ACTION", "JimengT2IV40SubmitTask"),
-            version=get_env("JIMENG_SUBMIT_VERSION", "2024-06-06"),
-            body_dict=payload,
-            method="POST",
-        )
-    info = UniversalInfo(
+    # Jimeng T2I v4 uses Visual CV async submit/get-result actions.
+    return raw_request(
+        action=get_env("JIMENG_SUBMIT_ACTION", "CVSync2AsyncSubmitTask"),
+        version=get_env("JIMENG_SUBMIT_VERSION", "2022-08-31"),
+        body_dict=payload,
         method="POST",
-        service="cv",
-        version=get_env("JIMENG_SUBMIT_VERSION", "2024-06-06"),
-        action=get_env("JIMENG_SUBMIT_ACTION", "JimengT2IV40SubmitTask"),
-        content_type="application/json",
     )
-    return api.do_call(info, payload)
 
 
 def get_query_action_version():
@@ -93,22 +65,12 @@ def get_query_action_version():
 
 def query_task(api, task_id, req_key):
     action, version = get_query_action_version()
-    if get_env("JIMENG_USE_RAW", "0") == "1":
-        return raw_request(
-            action=action,
-            version=version,
-            body_dict={"req_key": req_key, "task_id": task_id},
-            method="POST",
-        )
-    info = UniversalInfo(
-        method="POST",
-        service="cv",
-        version=version,
+    return raw_request(
         action=action,
-        content_type="application/json",
+        version=version,
+        body_dict={"req_key": req_key, "task_id": task_id},
+        method="POST",
     )
-    body = {"req_key": req_key, "task_id": task_id}
-    return api.do_call(info, body)
 
 
 def extract_data(resp):
@@ -162,8 +124,7 @@ def main():
         raise RuntimeError("prompt is required")
     prompt = str(prompt).encode("utf-8", "replace").decode("utf-8")
 
-    api = build_client()
-    submit_resp = submit_task(api, prompt, req_key, extra)
+    submit_resp = submit_task(None, prompt, req_key, extra)
     data = extract_data(submit_resp)
     task_id = data.get("task_id") or data.get("TaskId")
     if not task_id:
@@ -176,7 +137,7 @@ def main():
 
     for _ in range(poll_limit):
         time.sleep(poll_interval)
-        query_resp = query_task(api, task_id, req_key)
+        query_resp = query_task(None, task_id, req_key)
         qdata = extract_data(query_resp)
         status = qdata.get("status")
         if status in ("done", "DONE"):

@@ -423,7 +423,8 @@ app.post('/api/shell/image', async (req, res) => {
     }
 
     const provider = (process.env.SHELL_IMAGE_PROVIDER || 'jimeng').toLowerCase();
-    const allowFallback = String(process.env.SHELL_IMAGE_FALLBACK || '1') === '1';
+    // Default to Jimeng only; enable fallback explicitly via env when needed.
+    const allowFallback = String(process.env.SHELL_IMAGE_FALLBACK || '0') === '1';
 
     if (provider === 'ark') {
       const data = await callArkImages(prompt);
