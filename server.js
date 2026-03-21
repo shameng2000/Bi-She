@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const http = require('http');
 const https = require('https');
 const path = require('path');
@@ -180,7 +180,7 @@ const runJimeng = (payload) =>
     const proc = spawn('python', [script], {
       env: {
         ...process.env,
-        JIMENG_USE_RAW: '1',
+        JIMENG_USE_RAW: '0',
         PYTHONIOENCODING: 'utf-8',
       },
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -354,12 +354,12 @@ app.post('/api/chat', async (req, res) => {
     }
 
     const systemPrompt = [
-      '你是车辆参数化设计助手（面向非专业用户）。',
-      '语气友好简洁，先给结论或建议，再用1-2句说明理由。',
-      '需要用户操作时，给出明确的参数方向或范围。',
-      '问题不清楚时，先问1个关键问题。',
-      '结合当前参数做判断（单位以UI为准）。',
-      '当前参数:',
+      '浣犳槸杞﹁締鍙傛暟鍖栬璁″姪鎵嬶紙闈㈠悜闈炰笓涓氱敤鎴凤級銆?,
+      '璇皵鍙嬪ソ绠€娲侊紝鍏堢粰缁撹鎴栧缓璁紝鍐嶇敤1-2鍙ヨ鏄庣悊鐢便€?,
+      '闇€瑕佺敤鎴锋搷浣滄椂锛岀粰鍑烘槑纭殑鍙傛暟鏂瑰悜鎴栬寖鍥淬€?,
+      '闂涓嶆竻妤氭椂锛屽厛闂?涓叧閿棶棰樸€?,
+      '缁撳悎褰撳墠鍙傛暟鍋氬垽鏂紙鍗曚綅浠I涓哄噯锛夈€?,
+      '褰撳墠鍙傛暟:',
       JSON.stringify(params)
     ].join('\n');
 
@@ -387,7 +387,7 @@ app.post('/api/chat', async (req, res) => {
       data.choices[0].message &&
       data.choices[0].message.content
         ? data.choices[0].message.content.trim()
-        : '未获取到有效回复';
+        : '鏈幏鍙栧埌鏈夋晥鍥炲';
 
     res.json({ reply });
   } catch (err) {
@@ -493,13 +493,13 @@ app.post('/api/recommend', async (req, res) => {
     const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
 
     const systemPrompt = [
-      '你是车辆参数推荐器。',
-      '只输出严格JSON对象，不要任何解释或代码块。',
-      '格式：{"result":{...},"reason":"..."}。',
-      'result 的键必须来自给定键列表。',
-      'reason 用1-2句中文说明推荐逻辑。',
-      '值需合理，单位以前端为准。',
-      `键列表:${JSON.stringify(keys)}`
+      '浣犳槸杞﹁締鍙傛暟鎺ㄨ崘鍣ㄣ€?,
+      '鍙緭鍑轰弗鏍糐SON瀵硅薄锛屼笉瑕佷换浣曡В閲婃垨浠ｇ爜鍧椼€?,
+      '鏍煎紡锛歿"result":{...},"reason":"..."}銆?,
+      'result 鐨勯敭蹇呴』鏉ヨ嚜缁欏畾閿垪琛ㄣ€?,
+      'reason 鐢?-2鍙ヤ腑鏂囪鏄庢帹鑽愰€昏緫銆?,
+      '鍊奸渶鍚堢悊锛屽崟浣嶄互鍓嶇涓哄噯銆?,
+      `閿垪琛?${JSON.stringify(keys)}`
     ].join('\n');
 
     const messages = [
@@ -535,7 +535,7 @@ app.post('/api/recommend', async (req, res) => {
         rawPreview: reply.slice(0, 200),
         model: payload.model,
       });
-      res.status(500).json({ error: 'AI返回内容无法解析为JSON', raw: reply });
+      res.status(500).json({ error: 'AI杩斿洖鍐呭鏃犳硶瑙ｆ瀽涓篔SON', raw: reply });
       return;
     }
     let result = {};
@@ -569,12 +569,12 @@ app.post('/api/audit', async (req, res) => {
     const labels = req.body.labels || {};
 
     const systemPrompt = [
-      '你是车辆参数核验助手。',
-      '只输出严格JSON对象，不要任何解释或代码块。',
-      '格式：{"ok":true/false,"issues":[...],"suggestions":[...]}。',
-      'issues 列出明显不合理之处，suggestions 给出简短改进建议。',
-      '如无明显问题，ok 为 true，issues 为空。',
-      '必须使用中文描述，并尽量引用参数中文名称。'
+      '浣犳槸杞﹁締鍙傛暟鏍搁獙鍔╂墜銆?,
+      '鍙緭鍑轰弗鏍糐SON瀵硅薄锛屼笉瑕佷换浣曡В閲婃垨浠ｇ爜鍧椼€?,
+      '鏍煎紡锛歿"ok":true/false,"issues":[...],"suggestions":[...]}銆?,
+      'issues 鍒楀嚭鏄庢樉涓嶅悎鐞嗕箣澶勶紝suggestions 缁欏嚭绠€鐭敼杩涘缓璁€?,
+      '濡傛棤鏄庢樉闂锛宱k 涓?true锛宨ssues 涓虹┖銆?,
+      '蹇呴』浣跨敤涓枃鎻忚堪锛屽苟灏介噺寮曠敤鍙傛暟涓枃鍚嶇О銆?
     ].join('\n');
 
     const messages = [
@@ -610,7 +610,7 @@ app.post('/api/audit', async (req, res) => {
         rawPreview: reply.slice(0, 200),
         model: payload.model,
       });
-      res.status(500).json({ error: 'AI返回内容无法解析为JSON', raw: reply });
+      res.status(500).json({ error: 'AI杩斿洖鍐呭鏃犳硶瑙ｆ瀽涓篔SON', raw: reply });
       return;
     }
     res.json(parsed);
