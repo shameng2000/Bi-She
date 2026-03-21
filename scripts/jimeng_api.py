@@ -54,13 +54,15 @@ def submit_task(api, prompt, req_key, extra=None):
     payload = {"req_key": req_key, "prompt": prompt}
     if isinstance(extra, dict):
         payload.update(extra)
-    # Jimeng T2I v4 uses Visual CV async submit/get-result actions.
-    return raw_request(
-        action=get_env("JIMENG_SUBMIT_ACTION", "CVSync2AsyncSubmitTask"),
-        version=get_env("JIMENG_SUBMIT_VERSION", "2022-08-31"),
-        body_dict=payload,
-        method="POST",
-    )
+    action = get_env("JIMENG_SUBMIT_ACTION", "").strip()
+    version = get_env("JIMENG_SUBMIT_VERSION", "").strip()
+    # Hard-guard: don't allow misconfigured action/version to break prod.
+    # Jimeng image generation 4.0 (t2i v40) uses Visual CV async submit/get-result actions.
+    if action != "CVSync2AsyncSubmitTask":
+        action = "CVSync2AsyncSubmitTask"
+    if version != "2022-08-31":
+        version = "2022-08-31"
+    return raw_request(action=action, version=version, body_dict=payload, method="POST")
 
 
 def get_query_action_version():
