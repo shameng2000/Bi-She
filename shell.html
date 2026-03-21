@@ -8,7 +8,7 @@
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <!-- Three.js (for combined preview) -->
+    <!-- Three.js (for model preview) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -69,11 +69,16 @@
         }
 
         .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             height: 38px;
             padding: 0 16px;
             border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
+            line-height: 1;
         }
 
         .ghost-btn {
@@ -106,6 +111,33 @@
             background: linear-gradient(90deg, #38bdf8, #22d3ee);
         }
 
+        .scrollbar-tech {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(56, 189, 248, 0.55) rgba(15, 23, 42, 0.6);
+            scrollbar-gutter: stable;
+        }
+
+        .scrollbar-tech::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .scrollbar-tech::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .scrollbar-tech::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(56, 189, 248, 0.75), rgba(34, 211, 238, 0.45));
+            border: 2px solid rgba(15, 23, 42, 0.55);
+            border-radius: 999px;
+            background-clip: padding-box;
+        }
+
+        .scrollbar-tech::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(125, 211, 252, 0.9), rgba(34, 211, 238, 0.55));
+            border: 2px solid rgba(15, 23, 42, 0.35);
+        }
+
         [v-cloak] { display: none; }
     </style>
 </head>
@@ -119,10 +151,10 @@
         <div class="flex items-center gap-4">
             <nav class="flex items-center gap-4 text-xs text-slate-300">
                 <a href="index.html" class="hover:text-cyan-300 transition">首页</a>
-                <a href="docs.html" class="hover:text-cyan-300 transition">学习文档</a>
-                <a href="me.html" class="hover:text-cyan-300 transition">我的</a>
                 <a href="1.html" class="hover:text-cyan-300 transition">底盘设计</a>
                 <a href="shell.html" class="text-cyan-300">外壳设计</a>
+                <a href="docs.html" class="hover:text-cyan-300 transition">学习文档</a>
+                <a href="me.html" class="hover:text-cyan-300 transition">我的</a>
             </nav>
             <button @click="goChassis" class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs flex items-center gap-2 border border-blue-500/60 shadow-lg shadow-blue-900/40">
                 <span class="material-icons-round text-sm">arrow_back</span> 返回底盘设计
@@ -131,7 +163,7 @@
     </header>
 
     <main class="flex-1 flex overflow-hidden">
-        <section class="w-[480px] max-w-[44vw] h-full overflow-y-auto px-5 py-6 space-y-5">
+        <section class="w-[480px] max-w-[44vw] h-full overflow-y-auto scrollbar-tech px-5 py-6 space-y-5">
             <div class="glass-panel rounded-2xl p-5">
                 <div class="flex items-center gap-2">
                     <span class="material-icons-round text-cyan-300">emoji_objects</span>
@@ -203,7 +235,7 @@
                     <div class="section-title">生成外壳模型</div>
                     <span class="pill">Step 3</span>
                 </div>
-                <p class="text-xs muted mt-1">将草图转为 3D 模型，完成后可预览外壳模型或合体预览。</p>
+                <p class="text-xs muted mt-1">将草图转为 3D 模型，完成后可在线预览并下载。</p>
 
                 <div class="mt-4">
                     <button @click="generateModel" :disabled="modelLoading || !imageDataUrl" class="cta-btn primary-btn w-full">
@@ -220,16 +252,15 @@
 
                 <div v-if="modelFileUrl" class="mt-4 text-xs">
                     <div class="text-cyan-200">模型已生成</div>
-                    <div class="mt-2 flex gap-2">
-                        <a :href="modelFileUrl" target="_blank" class="cta-btn ghost-btn">下载模型</a>
-                        <button @click="openPreview" class="cta-btn ghost-btn">合体预览</button>
+                    <div class="mt-2">
+                        <a :href="modelFileUrl" target="_blank" class="cta-btn ghost-btn w-full">下载模型</a>
                     </div>
                     <div class="text-[11px] muted mt-2">外壳会自动按底盘尺寸等比例缩放并居中对齐。</div>
                 </div>
             </div>
         </section>
 
-        <section class="flex-1 h-full px-6 py-6 overflow-y-auto">
+        <section class="flex-1 h-full px-6 py-6 overflow-y-auto scrollbar-tech">
             <div class="glass-panel rounded-2xl p-6 h-full flex flex-col">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="material-icons-round text-cyan-300">image</span>
@@ -256,18 +287,6 @@
             </div>
         </section>
     </main>
-
-    <div v-if="showPreview" class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/80">
-        <div class="glass-panel w-[980px] max-w-[95vw] h-[80vh] rounded-2xl p-4 relative">
-            <button @click="closePreview" class="absolute top-4 right-4 text-xs text-slate-300 hover:text-white">关闭</button>
-            <div class="flex items-center gap-2 mb-3">
-                <span class="material-icons-round text-cyan-300">layers</span>
-                <div class="section-title">外壳 + 底盘合体预览</div>
-                <span class="pill">预览</span>
-            </div>
-            <div id="preview-canvas" class="w-full h-[calc(80vh-90px)] rounded-xl border border-white/10 bg-slate-950/70"></div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -299,7 +318,6 @@ createApp({
         const modelFileUrl = ref('');
         const modelPreviewUrl = ref('');
         const modelDims = ref({ length: '-', width: '-', height: '-' });
-        const showPreview = ref(false);
 
         const elapsedSec = ref(0);
         const timerId = ref(null);
@@ -559,37 +577,11 @@ createApp({
             window.location.href = '1.html';
         };
 
-        let previewRenderer = null;
-        let previewScene = null;
-        let previewCamera = null;
-        let previewRAF = null;
-        let previewControls = null;
         let modelRenderer = null;
         let modelScene = null;
         let modelCamera = null;
         let modelRAF = null;
         let modelControls = null;
-
-        const openPreview = async () => {
-            showPreview.value = true;
-            await nextTick();
-            initPreviewScene();
-        };
-
-        const closePreview = () => {
-            showPreview.value = false;
-            if (previewRAF) cancelAnimationFrame(previewRAF);
-            if (previewRenderer) {
-                previewRenderer.dispose();
-                previewRenderer = null;
-            }
-            if (previewControls) {
-                previewControls.dispose();
-                previewControls = null;
-            }
-            previewScene = null;
-            previewCamera = null;
-        };
 
         const resolveModelUrl = (rawUrl) => {
             if (!rawUrl) return '';
@@ -752,88 +744,6 @@ createApp({
             animate();
         };
 
-        const initPreviewScene = () => {
-            const container = document.getElementById('preview-canvas');
-            if (!container || !modelFileUrl.value) return;
-
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            previewScene = new THREE.Scene();
-            previewScene.background = new THREE.Color(0x0b1224);
-
-            previewCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-            previewCamera.position.set(4, 2.8, 5);
-
-            previewRenderer = new THREE.WebGLRenderer({ antialias: true });
-            previewRenderer.setSize(width, height);
-            container.innerHTML = '';
-            container.appendChild(previewRenderer.domElement);
-
-            previewControls = new THREE.OrbitControls(previewCamera, previewRenderer.domElement);
-            previewControls.enableDamping = true;
-            previewControls.dampingFactor = 0.08;
-            previewControls.minDistance = 0.8;
-            previewControls.maxDistance = 40;
-
-            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-            const key = new THREE.DirectionalLight(0xffffff, 0.8);
-            key.position.set(4, 6, 3);
-            previewScene.add(ambient, key);
-
-            const loader = new THREE.GLTFLoader();
-            const chassisUrl = '5glb.glb';
-
-            let chassisCenter = new THREE.Vector3();
-            loader.load(chassisUrl, (gltf) => {
-                const chassisModel = gltf.scene;
-                previewScene.add(chassisModel);
-                const box = new THREE.Box3().setFromObject(chassisModel);
-                box.getCenter(chassisCenter);
-                previewControls.target.copy(chassisCenter);
-                previewControls.update();
-            });
-
-            const sourceUrl = resolveModelUrl(modelFileUrl.value);
-            const ext = getExt(modelFileUrl.value);
-            const placeShell = (shellModel) => {
-                const shellBox = new THREE.Box3().setFromObject(shellModel);
-                const shellSize = new THREE.Vector3();
-                shellBox.getSize(shellSize);
-                const targetLength = chassis.value.length;
-                const targetWidth = chassis.value.width;
-                const scaleL = shellSize.x > 0 ? targetLength / shellSize.x : 1;
-                const scaleW = shellSize.z > 0 ? targetWidth / shellSize.z : 1;
-                const scale = Math.min(scaleL, scaleW);
-                shellModel.scale.setScalar(scale);
-
-                const scaledBox = new THREE.Box3().setFromObject(shellModel);
-                const scaledCenter = new THREE.Vector3();
-                scaledBox.getCenter(scaledCenter);
-                shellModel.position.add(chassisCenter.sub(scaledCenter));
-
-                previewScene.add(shellModel);
-            };
-
-            if (ext === 'obj') {
-                loadObjWithTexture(
-                    sourceUrl,
-                    (obj) => placeShell(obj),
-                    (err) => console.error('OBJ preview load failed', err)
-                );
-            } else {
-                loader.load(sourceUrl, (gltf) => {
-                    placeShell(gltf.scene);
-                });
-            }
-
-            const animate = () => {
-                previewRAF = requestAnimationFrame(animate);
-                if (previewControls) previewControls.update();
-                previewRenderer.render(previewScene, previewCamera);
-            };
-            animate();
-        };
-
         onMounted(() => {
             reloadChassis();
         });
@@ -851,7 +761,6 @@ createApp({
             modelError,
             modelPreviewError,
             modelFileUrl,
-            showPreview,
             progressPercent,
             estimateText,
             elapsedText,
@@ -862,8 +771,6 @@ createApp({
             generateImage,
             regenerateImage,
             generateModel,
-            openPreview,
-            closePreview,
             goChassis
         };
     }
