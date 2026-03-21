@@ -12,6 +12,7 @@ RUN npm install
 COPY requirements.txt ./
 RUN python3 -m venv /opt/venv \
   && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN /opt/venv/bin/python -c "import volcenginesdkcore"
 
 COPY . .
 

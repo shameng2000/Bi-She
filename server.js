@@ -177,7 +177,10 @@ app.get('/api/shell/fetch', (req, res) => {
 const runJimeng = (payload) =>
   new Promise((resolve, reject) => {
     const script = path.join(__dirname, 'scripts', 'jimeng_api.py');
-    const pythonBin = process.env.PYTHON_BIN || 'python';
+    const venvPython = '/opt/venv/bin/python';
+    const pythonBin = fs.existsSync(venvPython)
+        ? venvPython
+        : (process.env.PYTHON_BIN || 'python');
     const proc = spawn(pythonBin, [script], {
       env: {
         ...process.env,
