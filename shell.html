@@ -364,7 +364,8 @@ createApp({
                 '必须是四个轮子，四轮布局清晰可见，轮距与轴距协调。',
                 '必须具有封闭的载物空间/封闭货舱，货舱是整车外壳的一体化结构。',
                 '严禁载人舱/驾驶舱/座舱/座椅/方向盘等任何可乘坐空间。',
-                '不是现实道路车辆，不是商用真车。'
+                '严禁出现驾驶室形态：不要挡风玻璃、不要车窗、不要后视镜、不要车门。',
+                '不是现实道路车辆，不是商用真车，不是卡车/货车/厢式车。'
             ];
             const layer2 = [
                 '结构定义：具有完整上部壳体，前部功能区/设备舱与后部封闭货舱一体化衔接。',
@@ -375,12 +376,12 @@ createApp({
             ];
             const layer3 = [
                 '造型要求：不是简单箱体，不是普通货箱，必须有完整整车造型语言与整体化体块关系。',
-                '造型要求：前部有明确设备舱/感知舱特征，主体连续过渡到封闭货舱。',
-                '风格：工业设计概念模型/产品级渲染，真实材质质感与真实光照阴影。',
+                '造型要求：前部有明确设备舱/感知舱特征（非驾驶室），主体连续过渡到封闭货舱。',
+                '风格：工业设计概念模型/产品级渲染（模型原型质感），真实材质与光照，但不要真车摄影感。',
                 '形态：简洁几何面、模块化但不呆板、现代化一体式外壳。',
                 '画面：干净背景、单体展示、三分之四视角或等轴视角。',
                 '画幅：横向 16:9 构图，主体清晰居中，留白简洁。',
-                '避免汽车广告风、道路场景和真车细节。'
+                '避免汽车广告风、道路/马路场景和真车细节（前脸、格栅、车牌、真实大灯）。'
             ];
             const constraints = buildShellConstraints();
 
@@ -401,11 +402,14 @@ createApp({
 
             const negativeZh = [
                 '载人舱', '驾驶舱', '座舱', '乘员空间', '座椅', '方向盘', '车门', '大面积透明舱',
+                '驾驶室', '挡风玻璃', '车窗', '后视镜', '司机', '乘客',
+                '车头驾驶室', '卡车驾驶室', '厢式车驾驶室',
                 '小巴', '摆渡车', '胶囊车', '载人小车', '乘用车',
                 '敞口货斗', '开放式车斗', '简易货箱', '普通货箱', '简单箱体', '底盘上放一个箱子', '独立货柜',
                 '平台车', '托盘车', '平板车', '小卡车货斗', '农用拖斗', '工程翻斗车',
                 '三轮', '六轮', '履带', '轮子数量错误', '轮子缺失', '浮空底座',
-                '卡车', '货车', '厢式货车', '皮卡', '真实商用车', '真实配送车', '道路车辆',
+                '卡车', '货车', '厢式货车', '轻卡', '皮卡', '集装箱货车', '物流卡车',
+                '真实商用车', '真实配送车', '道路车辆', '上路车辆',
                 '写实前脸', '汽车广告渲染', '城市道路', '交通场景', '车牌', '品牌标识',
                 '尺寸标注', '箭头', '标尺', '工程标注', '文字标注',
                 '外露复杂机械结构', '外露传动结构', '壳体悬浮', '壳体过大', '壳体过小',
@@ -413,12 +417,13 @@ createApp({
             ];
             const negativeEn = [
                 'passenger cabin', 'cockpit', 'seat', 'steering wheel', 'driver', 'passenger', 'people',
+                'driver cab', 'truck cab', 'windshield', 'side window', 'rear-view mirror', 'car door',
                 'minibus', 'shuttle pod', 'capsule car',
                 'open cargo bed', 'open tray', 'platform cart', 'pallet truck', 'flatbed',
                 'simple box', 'plain cargo box', 'box on chassis', 'isolated container',
                 'dump truck bed', 'trailer bed',
                 'three wheels', 'six wheels', 'tracks', 'missing wheels', 'floating base',
-                'truck', 'cargo van', 'pickup', 'commercial vehicle', 'real delivery vehicle', 'road vehicle',
+                'truck', 'cargo van', 'pickup', 'commercial vehicle', 'real delivery vehicle', 'road vehicle', 'street scene',
                 'realistic front fascia', 'advertisement poster', 'city traffic',
                 'dimension labels', 'dimension arrows', 'measurement marks', 'blueprint',
                 'exposed mechanics', 'mismatched shell', 'oversized body', 'undersized body',
