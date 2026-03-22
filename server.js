@@ -693,14 +693,47 @@ app.post('/api/recommend', async (req, res) => {
     const params = req.body.params || {};
     const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
 
+    const clamp = (v, min, max) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return v;
+      return Math.max(min, Math.min(max, n));
+    };
+
+    // Server-side fallback for when the model does not follow JSON-only requirements.
+    const localRecommend = (intentText, baseParams) => {
+      const intent = String(intentText || '');
+      const next = { ...(baseParams || {}) };
+      if (/校园|学校|运输|配送|货物|载重/.test(intent)) {
+        if (typeof next.payloadCapacity === 'number') next.payloadCapacity = clamp(next.payloadCapacity + 30, 0, 200);
+        if (typeof next.vehicleWidth === 'number') next.vehicleWidth = clamp(next.vehicleWidth + 0.08, 0.6, 1.4);
+        if (typeof next.vehicleLength === 'number') next.vehicleLength = clamp(next.vehicleLength + 0.15, 1.0, 3.0);
+      }
+      if (/越野|崎岖|爬坡|复杂|户外/.test(intent)) {
+        if (typeof next.chassisHeight === 'number') next.chassisHeight = clamp(next.chassisHeight + 0.08, 0.1, 0.55);
+        if (typeof next.tireWidth === 'number') next.tireWidth = clamp(next.tireWidth + 0.04, 0.12, 0.38);
+      }
+      if (/速度|竞速|高速|灵活/.test(intent)) {
+        if (typeof next.vehicleLength === 'number') next.vehicleLength = clamp(next.vehicleLength - 0.1, 1.0, 3.0);
+        if (typeof next.wheelbase === 'number') next.wheelbase = clamp(next.wheelbase + 0.08, 0.7, 2.0);
+      }
+      if (/续航|电池|里程/.test(intent)) {
+        if (typeof next.batteryCapacity === 'number') next.batteryCapacity = clamp(next.batteryCapacity + 10, 0, 90);
+      }
+      return next;
+    };
+
     const systemPrompt = [
       '你是车辆参数化设计助手（面向非专业用户）。',
-      '语气友好简洁，先给结论或建议，再用1-2句说明理由。',
-      '需要用户操作时，给出明确的参数方向或范围。',
-      '问题不清楚时，先问1个关键问题。',
-      '结合当前参数做判断（单位以M为准）。',
-      '当前参数:',
-      JSON.stringify(params)
+      '任务：根据用户设计意图与当前参数，输出“推荐参数预填”。',
+      '输出必须是严格 JSON，且只输出 JSON，不要任何额外文字、不要 Markdown、不要代码块。',
+      'JSON 格式如下：{"result":{...},"reason":"..."}',
+      'result 只包含你要修改/建议的参数键；其余键可以不输出。',
+      'reason 用 1-3 句中文说明推荐逻辑，避免冗长。',
+      '单位：所有长度单位为 m（米）。',
+      '当前参数（JSON）：',
+      JSON.stringify(params),
+      '允许输出的键（JSON 数组）：',
+      JSON.stringify(keys)
     ].join('\n');
 
     const messages = [
@@ -736,7 +769,20 @@ app.post('/api/recommend', async (req, res) => {
         rawPreview: reply.slice(0, 200),
         model: payload.model,
       });
-      res.status(500).json({ error: 'AI杩斿洖鍐呭鏃犳硶瑙ｆ瀽涓篔SON', raw: reply });
+      // Do not hard-fail: fall back to deterministic rule-based recommendation
+      // so the UI can keep working even if the LLM replies with plain text.
+      const fallback = localRecommend(userIntent, params);
+      const filteredFallback = {};
+      keys.forEach((k) => {
+        if (Object.prototype.hasOwnProperty.call(fallback, k)) {
+          filteredFallback[k] = fallback[k];
+        }
+      });
+      res.json({
+        result: filteredFallback,
+        reason: `AI 返回非 JSON，已使用规则生成预填。`,
+        raw: reply,
+      });
       return;
     }
     let result = {};
