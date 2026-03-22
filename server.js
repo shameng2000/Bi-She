@@ -810,6 +810,134 @@ app.post('/api/recommend', async (req, res) => {
   }
 });
 
+const coerceNumber = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const auditFallback = (p) => {
+  const issues = [];
+  const suggestions = [];
+
+  const vehicleLength = coerceNumber(p && p.vehicleLength);
+  const vehicleWidth = coerceNumber(p && p.vehicleWidth);
+  const wheelbase = coerceNumber(p && p.wheelbase);
+  const tireWidth = coerceNumber(p && p.tireWidth);
+  const tireOuterDiameter = coerceNumber(p && p.tireOuterDiameter);
+  const chassisHeight = coerceNumber(p && p.chassisHeight);
+
+  if (tireOuterDiameter != null && chassisHeight != null) {
+    if (chassisHeight > tireOuterDiameter * 0.45) {
+      issues.push('底盘高度偏高，可能超过轮胎高度范围。');
+      suggestions.push('降低底盘高度，保持在轮胎高度以内。');
+    }
+  }
+
+  if (tireWidth != null) {
+    if (tireWidth < 0.2 || tireWidth > 0.4) {
+      issues.push('轮胎宽度超出常规范围。');
+      suggestions.push('将轮胎宽度调整到 0.2m - 0.4m。');
+    }
+  }
+
+  if (vehicleLength != null && wheelbase != null) {
+    const wbMin = vehicleLength * 0.55;
+    const wbMax = vehicleLength * 0.7;
+    if (wheelbase < wbMin || wheelbase > wbMax) {
+      issues.push('轴距与车身总长比例不协调。');
+      suggestions.push('建议将轴距控制在车身总长的 55%–70%。');
+    }
+  }
+
+  if (vehicleLength != null && vehicleWidth != null) {
+    const widthMin = vehicleLength * 0.35;
+    const widthMax = vehicleLength * 0.55;
+    if (vehicleWidth < widthMin || vehicleWidth > widthMax) {
+      issues.push('载物台宽度与车身总长比例不协调。');
+      suggestions.push('建议将载物台宽度控制在车身总长的 35%–55%。');
+    }
+  }
+
+  return { ok: issues.length === 0, issues, suggestions, source: 'fallback' };
+};
+
+const tryParseJsonFromText = (rawText) => {
+  const text = String(rawText || '').trim();
+  if (!text) return null;
+
+  const tryParse = (candidate) => {
+    try {
+      return JSON.parse(candidate);
+    } catch (_err) {
+      return null;
+    }
+  };
+
+  const direct = tryParse(text);
+  if (direct) return direct;
+
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fence && fence[1]) {
+    const fenced = tryParse(fence[1].trim());
+    if (fenced) return fenced;
+  }
+
+  const scanFor = (openCh, closeCh) => {
+    const starts = [];
+    for (let i = 0; i < text.length; i += 1) {
+      if (text[i] === openCh) starts.push(i);
+    }
+    for (const start of starts) {
+      let depth = 0;
+      let inString = false;
+      let escaped = false;
+      for (let i = start; i < text.length; i += 1) {
+        const ch = text[i];
+        if (inString) {
+          if (escaped) {
+            escaped = false;
+          } else if (ch === '\\\\') {
+            escaped = true;
+          } else if (ch === '"') {
+            inString = false;
+          }
+          continue;
+        }
+        if (ch === '"') {
+          inString = true;
+          continue;
+        }
+        if (ch === openCh) depth += 1;
+        if (ch === closeCh) depth -= 1;
+        if (depth === 0) {
+          const candidate = text.slice(start, i + 1);
+          const parsed = tryParse(candidate);
+          if (parsed) return parsed;
+          break;
+        }
+        if (depth < 0) break;
+      }
+    }
+    return null;
+  };
+
+  return scanFor('{', '}') || scanFor('[', ']');
+};
+
+const normalizeAuditResult = (obj) => {
+  if (!obj || typeof obj !== 'object') return null;
+  const root = obj.result && typeof obj.result === 'object' ? obj.result : obj;
+  const issues = Array.isArray(root.issues) ? root.issues : [];
+  const suggestions = Array.isArray(root.suggestions) ? root.suggestions : [];
+  const okVal = typeof root.ok === 'boolean' ? root.ok : issues.length === 0;
+  return {
+    ok: okVal,
+    issues: issues.map((v) => String(v)),
+    suggestions: suggestions.map((v) => String(v)),
+    source: 'ai',
+  };
+};
+
 app.post('/api/audit', async (req, res) => {
   try {
     const params = req.body.params || {};
@@ -817,12 +945,13 @@ app.post('/api/audit', async (req, res) => {
 
     const systemPrompt = [
       '你是车辆参数化设计助手（面向非专业用户）。',
-      '语气友好简洁，先给结论或建议，再用1-2句说明理由。',
-      '需要用户操作时，给出明确的参数方向或范围。',
-      '问题不清楚时，先问1个关键问题。',
-      '结合当前参数做判断（单位以M为准）。',
-      '当前参数:',
-      JSON.stringify(params)
+      '任务：对“当前车辆参数”做合理性核验，指出明显不合理点，并给出可执行的调整建议。',
+      '输出必须是严格 JSON，且只输出 JSON：不要任何额外文字、不要 Markdown、不要代码块。',
+      'JSON 结构固定为：{"ok":true/false,"issues":["..."],"suggestions":["..."]}',
+      'issues/suggestions 用中文短句，每条 8-30 字，最多各 8 条。',
+      '判断时使用的单位：所有长度单位为 m（米）。',
+      '当前参数（JSON）：',
+      JSON.stringify(params),
     ].join('\n');
 
     const messages = [
@@ -847,27 +976,27 @@ app.post('/api/audit', async (req, res) => {
         ? data.choices[0].message.content.trim()
         : '未获取到有效回复';
 
-    let jsonText = reply;
-    const match = reply.match(/\{[\s\S]*\}/);
-    if (match) jsonText = match[0];
-    let parsed = null;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch (err) {
-      logError('audit_parse', err, {
+    const parsedAny = tryParseJsonFromText(reply);
+    const normalized = normalizeAuditResult(parsedAny);
+    if (!normalized) {
+      logError('audit_parse', new Error('audit JSON parse failed'), {
         rawPreview: reply.slice(0, 200),
         model: payload.model,
       });
-      res.status(500).json({ error: 'AI杩斿洖鍐呭鏃犳硶瑙ｆ瀽涓篔SON', raw: reply });
+      // Do not hard-fail: return deterministic fallback so the UI keeps working.
+      res.json({ ...auditFallback(params), raw: reply });
       return;
     }
-    res.json(parsed);
+
+    res.json(normalized);
   } catch (err) {
     logError('audit', err, {
       hasKey: Boolean(process.env.SILICONFLOW_API_KEY),
       model: process.env.SILICONFLOW_AUDIT_MODEL || 'deepseek-ai/DeepSeek-V2.5',
     });
-    res.status(500).json({ error: err.message || String(err) });
+    // Do not hard-fail: return fallback for reliability.
+    const p = (req && req.body && req.body.params) ? req.body.params : {};
+    res.json(auditFallback(p));
   }
 });
 
